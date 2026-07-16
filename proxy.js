@@ -39,36 +39,25 @@ app.post("/proxy/generate-params", async (req, res) => {
     }
 
     const systemPrompt = `あなたは抽象アート生成AIです。
-ユーザーの感情・記憶・言葉を深く読み取り、Canvas上に描く抽象画の描画パラメータをJSONで返してください。
-感情の強度・雰囲気・イメージを最大限に反映させてください。
+ユーザーの感情・記憶・言葉を深く読み取り、HTML5 Canvas APIの描画命令を生成してください。
+感情・雰囲気・イメージを最大限に自由に表現してください。
 
-必ず以下のJSON形式のみを返してください（説明文・コードブロック・\`\`\`記号は不要）:
+必ずJSON形式のみで返してください（説明文・コードブロック・\`\`\`記号は一切不要）:
 {
   "background": "#rrggbb（感情に合った背景色）",
-  "palette": ["#色1", "#色2", "#色3", "#色4", "#色5"],
-  "emotion": {
-    "calm": 0から100の数値,
-    "joy": 0から100の数値,
-    "nostalgia": 0から100の数値,
-    "anxiety": 0から100の数値,
-    "energy": 0から100の数値
-  },
-  "shapes": {
-    "circles": 0から60の数値（大きなぼかし円の数。穏やかさ・温かさを表す）,
-    "particles": 0から120の数値（小さなドットの数。細かい感情の粒を表す）,
-    "curves": 0から40の数値（曲線の数。流れ・動きを表す）,
-    "blur": 5から80の数値（ぼかしの強さ。夢幻的・鮮明さを調整）,
-    "noise": 0から8000の数値（ノイズ量。ざわつき・静けさを表す）,
-    "waves": trueまたはfalse（波。海・流れ・揺らぎ）,
-    "stars": trueまたはfalse（星。夜・孤独・希望）,
-    "petals": trueまたはfalse（花びら。儚さ・美しさ・春）,
-    "jagged": trueまたはfalse（鋭い線。不安・激しさ・葛藤）,
-    "spirals": trueまたはfalse（螺旋。混沌・内省・深み）,
-    "rays": trueまたはfalse（放射線。希望・エネルギー・解放）
-  },
   "title": "作品タイトル（日本語）",
-  "reflection": "この作品についての詩的な解釈（2〜3文）"
-}`;
+  "reflection": "詩的な解釈（2〜3文）",
+  "commands": [
+    {"type": "circle", "x": 0〜1, "y": 0〜1, "r": 0〜0.5, "color": "#rrggbb", "alpha": 0〜1, "blur": 0〜80},
+    {"type": "curve", "x1": 0〜1, "y1": 0〜1, "cx1": 0〜1, "cy1": 0〜1, "cx2": 0〜1, "cy2": 0〜1, "x2": 0〜1, "y2": 0〜1, "color": "#rrggbb", "width": 1〜10, "alpha": 0〜1},
+    {"type": "wave", "y": 0〜1, "amplitude": 0.01〜0.15, "frequency": 0.005〜0.04, "color": "#rrggbb", "width": 1〜8, "alpha": 0〜1},
+    {"type": "dots", "count": 1〜150, "minR": 1〜5, "maxR": 3〜20, "color": "#rrggbb", "alpha": 0〜1},
+    {"type": "ray", "cx": 0〜1, "cy": 0〜1, "count": 4〜24, "color": "#rrggbb", "alpha": 0〜1, "width": 1〜10},
+    {"type": "spiral", "cx": 0〜1, "cy": 0〜1, "color": "#rrggbb", "alpha": 0〜1, "width": 1〜6},
+    {"type": "noise", "count": 0〜8000, "color": "#rrggbb", "alpha": 0〜0.15}
+  ]
+}
+座標はすべて0〜1の比率で指定（例: x:0.5 = 画面中央）。commandsは6〜15個。感情を最大限に反映した自由な構図にすること。`;
 
     try {
 

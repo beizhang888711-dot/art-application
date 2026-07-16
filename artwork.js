@@ -1,11 +1,6 @@
 // ======================================
-// Artwork Generator
-// AI生成パラメータのみで描画
-// ======================================
-
-// ======================================
-// IBM Consulting Advantage API（gpt-4o）
-// APIキーはプロキシサーバー（proxy.js）側で管理
+// Artwork Generator — commands方式
+// AIが描画命令を直接生成し、Canvasに実行する
 // ======================================
 
 const PROXY_ENDPOINT = "http://localhost:3000/proxy";
@@ -50,218 +45,129 @@ memories.forEach(word => {
 
 let aiTitle      = "Reflection";
 let aiReflection = "あなたの言葉から生まれた、世界にひとつだけの作品です。";
-let palette      = ["#6C8CFF","#9D7CFF","#8AE6CF","#FF9EB7","#FFF0A0"];
-let bgColor      = "#EEF5FF";
-let shapes       = {
-    circles:   20,
-    particles: 60,
-    curves:    15,
-    blur:      35,
-    noise:     2000,
-    waves:     false,
-    stars:     false,
-    petals:    false,
-    jagged:    false,
-    spirals:   false,
-    rays:      false
-};
 
 // ======================================
 // ユーティリティ
 // ======================================
 
 function rand(min, max) { return Math.random() * (max - min) + min; }
-function pick()          { return palette[Math.floor(Math.random() * palette.length)]; }
 
 // ======================================
-// 描画関数
+// コマンド実行エンジン
 // ======================================
 
-function drawBackground() {
-    const grad = ctx.createLinearGradient(0, 0, W, H);
-    grad.addColorStop(0, bgColor);
-    grad.addColorStop(1, "#ffffff");
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, W, H);
-}
+function execCommand(cmd) {
 
-function drawGlassCircles() {
     ctx.save();
-    ctx.filter = `blur(${shapes.blur}px)`;
-    ctx.globalAlpha = 0.30;
-    for (let i = 0; i < shapes.circles; i++) {
-        ctx.beginPath();
-        ctx.fillStyle = pick();
-        ctx.arc(rand(0,W), rand(0,H), rand(60,160), 0, Math.PI*2);
-        ctx.fill();
-    }
-    ctx.restore();
-}
+    ctx.globalAlpha = cmd.alpha ?? 1;
 
-function drawCurves() {
-    ctx.save();
-    ctx.globalAlpha = 0.45;
-    for (let i = 0; i < shapes.curves; i++) {
-        ctx.beginPath();
-        ctx.strokeStyle = pick();
-        ctx.lineWidth   = rand(1.5, 7);
-        ctx.moveTo(rand(0,W), rand(0,H));
-        ctx.bezierCurveTo(rand(0,W),rand(0,H), rand(0,W),rand(0,H), rand(0,W),rand(0,H));
-        ctx.stroke();
-    }
-    ctx.restore();
-}
+    switch (cmd.type) {
 
-function drawParticles() {
-    ctx.save();
-    ctx.globalAlpha = 0.75;
-    for (let i = 0; i < shapes.particles; i++) {
-        ctx.beginPath();
-        ctx.fillStyle = pick();
-        ctx.arc(rand(0,W), rand(0,H), rand(2,16), 0, Math.PI*2);
-        ctx.fill();
-    }
-    ctx.restore();
-}
-
-function drawNoise() {
-    ctx.save();
-    ctx.globalAlpha = 0.07;
-    for (let i = 0; i < shapes.noise; i++) {
-        ctx.fillStyle = "#000";
-        ctx.fillRect(rand(0,W), rand(0,H), 1, 1);
-    }
-    ctx.restore();
-}
-
-function drawWaves() {
-    if (!shapes.waves) return;
-    ctx.save();
-    ctx.globalAlpha = 0.50;
-    for (let wave = 0; wave < 4; wave++) {
-        ctx.beginPath();
-        ctx.strokeStyle = pick();
-        ctx.lineWidth   = rand(2, 6);
-        for (let x = 0; x < W; x++) {
-            const y = H * (0.3 + wave * 0.12) + Math.sin(x * 0.018 + wave) * rand(15,35);
-            x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+        case "circle": {
+            const x = cmd.x * W;
+            const y = cmd.y * H;
+            const r = cmd.r * Math.min(W, H);
+            ctx.filter = cmd.blur ? `blur(${cmd.blur}px)` : "none";
+            ctx.beginPath();
+            ctx.fillStyle = cmd.color;
+            ctx.arc(x, y, r, 0, Math.PI * 2);
+            ctx.fill();
+            break;
         }
-        ctx.stroke();
-    }
-    ctx.restore();
-}
 
-function drawStars() {
-    if (!shapes.stars) return;
-    ctx.save();
-    ctx.globalAlpha = 0.90;
-    for (let i = 0; i < 200; i++) {
-        ctx.beginPath();
-        ctx.fillStyle = "white";
-        ctx.arc(rand(0,W), rand(0,H), rand(0.5, 2.5), 0, Math.PI*2);
-        ctx.fill();
-    }
-    ctx.restore();
-}
-
-function drawPetals() {
-    if (!shapes.petals) return;
-    ctx.save();
-    ctx.globalAlpha = 0.55;
-    for (let i = 0; i < 80; i++) {
-        ctx.save();
-        ctx.translate(rand(0,W), rand(0,H));
-        ctx.rotate(rand(0, Math.PI*2));
-        ctx.fillStyle = pick();
-        ctx.beginPath();
-        ctx.ellipse(0, 0, rand(8,16), rand(4,8), 0, 0, Math.PI*2);
-        ctx.fill();
-        ctx.restore();
-    }
-    ctx.restore();
-}
-
-function drawJagged() {
-    if (!shapes.jagged) return;
-    ctx.save();
-    ctx.globalAlpha = 0.50;
-    for (let i = 0; i < 18; i++) {
-        ctx.beginPath();
-        ctx.strokeStyle = pick();
-        ctx.lineWidth   = rand(1, 4);
-        ctx.moveTo(rand(0,W), rand(0,H));
-        for (let j = 0; j < 12; j++) {
-            ctx.lineTo(rand(0,W), rand(0,H));
+        case "curve": {
+            ctx.beginPath();
+            ctx.strokeStyle = cmd.color;
+            ctx.lineWidth   = cmd.width ?? 2;
+            ctx.moveTo(cmd.x1 * W, cmd.y1 * H);
+            ctx.bezierCurveTo(
+                cmd.cx1 * W, cmd.cy1 * H,
+                cmd.cx2 * W, cmd.cy2 * H,
+                cmd.x2  * W, cmd.y2  * H
+            );
+            ctx.stroke();
+            break;
         }
-        ctx.stroke();
-    }
-    ctx.restore();
-}
 
-function drawSpirals() {
-    if (!shapes.spirals) return;
-    ctx.save();
-    ctx.globalAlpha = 0.40;
-    for (let s = 0; s < 4; s++) {
-        const cx = rand(0, W);
-        const cy = rand(0, H);
-        ctx.beginPath();
-        ctx.strokeStyle = pick();
-        ctx.lineWidth   = rand(1.5, 4);
-        for (let t = 0; t < Math.PI * 10; t += 0.05) {
-            const r = t * rand(4, 10);
-            const x = cx + r * Math.cos(t);
-            const y = cy + r * Math.sin(t);
-            t < 0.05 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+        case "wave": {
+            const baseY = cmd.y * H;
+            const amp   = (cmd.amplitude ?? 0.04) * H;
+            const freq  = cmd.frequency ?? 0.02;
+            ctx.beginPath();
+            ctx.strokeStyle = cmd.color;
+            ctx.lineWidth   = cmd.width ?? 2;
+            for (let x = 0; x <= W; x++) {
+                const y = baseY + Math.sin(x * freq) * amp;
+                x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+            break;
         }
-        ctx.stroke();
+
+        case "dots": {
+            const count = cmd.count ?? 50;
+            for (let i = 0; i < count; i++) {
+                const r = rand(cmd.minR ?? 2, cmd.maxR ?? 8);
+                ctx.beginPath();
+                ctx.fillStyle = cmd.color;
+                ctx.arc(rand(0, W), rand(0, H), r, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            break;
+        }
+
+        case "ray": {
+            const cx    = (cmd.cx ?? 0.5) * W;
+            const cy    = (cmd.cy ?? 0.5) * H;
+            const count = cmd.count ?? 12;
+            ctx.strokeStyle = cmd.color;
+            ctx.lineWidth   = cmd.width ?? 3;
+            for (let i = 0; i < count; i++) {
+                const angle = (Math.PI * 2 / count) * i;
+                ctx.beginPath();
+                ctx.moveTo(cx, cy);
+                ctx.lineTo(cx + Math.cos(angle) * W, cy + Math.sin(angle) * W);
+                ctx.stroke();
+            }
+            break;
+        }
+
+        case "spiral": {
+            const cx = (cmd.cx ?? 0.5) * W;
+            const cy = (cmd.cy ?? 0.5) * H;
+            ctx.beginPath();
+            ctx.strokeStyle = cmd.color;
+            ctx.lineWidth   = cmd.width ?? 2;
+            for (let t = 0; t < Math.PI * 10; t += 0.05) {
+                const r = t * rand(4, 10);
+                const x = cx + r * Math.cos(t);
+                const y = cy + r * Math.sin(t);
+                t < 0.05 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+            break;
+        }
+
+        case "noise": {
+            const count = cmd.count ?? 2000;
+            for (let i = 0; i < count; i++) {
+                ctx.fillStyle = cmd.color ?? "#000";
+                ctx.fillRect(rand(0, W), rand(0, H), 1, 1);
+            }
+            break;
+        }
+
     }
+
     ctx.restore();
-}
 
-function drawRays() {
-    if (!shapes.rays) return;
-    ctx.save();
-    ctx.globalAlpha = 0.30;
-    const cx = W / 2 + rand(-100, 100);
-    const cy = H / 2 + rand(-100, 100);
-    const count = Math.floor(rand(12, 24));
-    for (let i = 0; i < count; i++) {
-        const angle = (Math.PI * 2 / count) * i;
-        ctx.beginPath();
-        ctx.strokeStyle = pick();
-        ctx.lineWidth   = rand(2, 8);
-        ctx.moveTo(cx, cy);
-        ctx.lineTo(cx + Math.cos(angle) * W, cy + Math.sin(angle) * W);
-        ctx.stroke();
-    }
-    ctx.restore();
-}
-
-// ======================================
-// 全描画
-// ======================================
-
-function renderCanvas() {
-    drawBackground();
-    drawGlassCircles();
-    drawRays();
-    drawCurves();
-    drawWaves();
-    drawSpirals();
-    drawStars();
-    drawPetals();
-    drawJagged();
-    drawParticles();
-    drawNoise();
 }
 
 // ======================================
 // ローディング・AI呼び出し
 // ======================================
 
-const aiLoading  = document.getElementById("aiLoading");
-const aiArtImage = document.getElementById("aiArtImage");
+const aiLoading = document.getElementById("aiLoading");
 
 canvas.style.opacity   = "0";
 canvas.style.transform = "scale(0.92)";
@@ -272,13 +178,18 @@ canvas.style.transform = "scale(0.92)";
 
         const ai = await fetchAIParams(memories);
 
-        // パレット・背景
-        if (ai.palette?.length)  palette = ai.palette;
-        if (ai.background)       bgColor = ai.background;
+        // 背景
+        const bgColor = ai.background ?? "#EEF5FF";
+        const grad = ctx.createLinearGradient(0, 0, W, H);
+        grad.addColorStop(0, bgColor);
+        grad.addColorStop(1, "#ffffff");
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, W, H);
 
-        // 描画形状（shapes または features どちらのキーでも受け取る）
-        if (ai.shapes)    Object.assign(shapes, ai.shapes);
-        if (ai.features)  Object.assign(shapes, ai.features);
+        // 全コマンドを実行
+        if (Array.isArray(ai.commands)) {
+            ai.commands.forEach(cmd => execCommand(cmd));
+        }
 
         // タイトル・リフレクション
         if (ai.title) {
@@ -296,16 +207,20 @@ canvas.style.transform = "scale(0.92)";
 
     } catch (err) {
 
-        console.warn("AIパラメータ取得失敗。デフォルトで描画します。", err);
+        console.warn("AIパラメータ取得失敗。デフォルト描画します。", err);
+
+        // フォールバック：シンプルなグラデーション
+        const grad = ctx.createLinearGradient(0, 0, W, H);
+        grad.addColorStop(0, "#EEF5FF");
+        grad.addColorStop(1, "#ffffff");
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, W, H);
 
     } finally {
 
         aiLoading.style.display = "none";
         canvas.style.display    = "block";
 
-        renderCanvas();
-
-        // フェードイン
         setTimeout(() => {
             canvas.style.transition = "1.8s";
             canvas.style.opacity    = "1";
@@ -324,7 +239,6 @@ canvas.style.transform = "scale(0.92)";
         });
 
         console.log("Artwork Complete");
-
     }
 
 })();
@@ -336,9 +250,7 @@ canvas.style.transform = "scale(0.92)";
 const saveGalleryBtn = document.getElementById("saveGalleryBtn");
 
 if (saveGalleryBtn) {
-
     saveGalleryBtn.onclick = () => {
-
         const gallery = JSON.parse(localStorage.getItem("gallery")) || [];
         const image   = canvas.toDataURL("image/png");
 
@@ -348,19 +260,16 @@ if (saveGalleryBtn) {
         }
 
         gallery.push({
-            title:       aiTitle,
-            image:       image,
-            reflection:  aiReflection,
-            keywords:    memories,
-            createdAt:   new Date().toLocaleDateString("ja-JP")
+            title:      aiTitle,
+            image:      image,
+            reflection: aiReflection,
+            keywords:   memories,
+            createdAt:  new Date().toLocaleDateString("ja-JP")
         });
 
         localStorage.setItem("gallery", JSON.stringify(gallery));
-
         saveGalleryBtn.textContent = "✅ 保存済み";
         saveGalleryBtn.disabled    = true;
         alert("ギャラリーに保存しました！");
-
     };
-
 }
