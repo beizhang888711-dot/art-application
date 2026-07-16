@@ -52,6 +52,17 @@ let aiReflection = "あなたの言葉から生まれた、世界にひとつだ
 
 function rand(min, max) { return Math.random() * (max - min) + min; }
 
+// 16進カラーを明るく/暗くする
+function adjustColor(hex, amount) {
+    const n = parseInt(hex.replace("#",""), 16);
+    const r = Math.min(255, Math.max(0, (n >> 16) + amount));
+    const g = Math.min(255, Math.max(0, ((n >> 8) & 0xff) + amount));
+    const b = Math.min(255, Math.max(0, (n & 0xff) + amount));
+    return `#${((r<<16)|(g<<8)|b).toString(16).padStart(6,"0")}`;
+}
+function lighten(hex, amount) { return adjustColor(hex,  amount); }
+function darken (hex, amount) { return adjustColor(hex, -amount); }
+
 // ======================================
 // コマンド実行エンジン
 // ======================================
@@ -200,11 +211,12 @@ canvas.style.transform = "scale(0.92)";
 
         const ai = await fetchAIParams(memories);
 
-        // 背景
+        // 背景（放射グラデーション）
         const bgColor = ai.background ?? "#EEF5FF";
-        const grad = ctx.createLinearGradient(0, 0, W, H);
-        grad.addColorStop(0, bgColor);
-        grad.addColorStop(1, "#ffffff");
+        const grad = ctx.createRadialGradient(W*0.5, H*0.4, 0, W*0.5, H*0.5, W*0.75);
+        grad.addColorStop(0, lighten(bgColor, 30));
+        grad.addColorStop(0.6, bgColor);
+        grad.addColorStop(1, darken(bgColor, 30));
         ctx.fillStyle = grad;
         ctx.fillRect(0, 0, W, H);
 
