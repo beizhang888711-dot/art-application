@@ -276,8 +276,9 @@ canvas.style.transform = "scale(0.92)";
         if (ai.palette?.length)  palette = ai.palette;
         if (ai.background)       bgColor = ai.background;
 
-        // 描画形状（AIが全指定）
-        if (ai.shapes) Object.assign(shapes, ai.shapes);
+        // 描画形状（shapes または features どちらのキーでも受け取る）
+        if (ai.shapes)    Object.assign(shapes, ai.shapes);
+        if (ai.features)  Object.assign(shapes, ai.features);
 
         // タイトル・リフレクション
         if (ai.title) {
