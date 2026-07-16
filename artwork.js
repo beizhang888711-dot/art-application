@@ -5,11 +5,11 @@
 
 const PROXY_ENDPOINT = "http://localhost:3000/proxy";
 
-async function fetchAIParams(memories) {
+async function fetchAIParams(memories, conversationHistory) {
     const response = await fetch(`${PROXY_ENDPOINT}/generate-params`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ memories })
+        body: JSON.stringify({ memories, conversationHistory })
     });
     if (!response.ok) throw new Error(`API error: ${response.status}`);
     return await response.json();
@@ -28,7 +28,8 @@ const H      = canvas.height;
 // Workshopの回答取得
 // ======================================
 
-const memories = JSON.parse(localStorage.getItem("reflectionData")) || [];
+const memories             = JSON.parse(localStorage.getItem("reflectionData"))         || [];
+const conversationHistory  = JSON.parse(localStorage.getItem("conversationHistory"))    || [];
 
 // キーワード表示
 const keywordContainer = document.getElementById("keywordContainer");
@@ -209,7 +210,7 @@ canvas.style.transform = "scale(0.92)";
 
     try {
 
-        const ai = await fetchAIParams(memories);
+        const ai = await fetchAIParams(memories, conversationHistory);
 
         // 背景（放射グラデーション）
         const bgColor = ai.background ?? "#EEF5FF";

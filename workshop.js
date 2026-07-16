@@ -101,6 +101,7 @@ function finishWorkshop() {
     btn.textContent = "作品を生成する";
     btn.onclick = () => {
         localStorage.setItem("reflectionData", JSON.stringify(memories));
+        localStorage.setItem("conversationHistory", JSON.stringify(history));
         window.location.href = "artwork.html";
     };
     document.querySelector(".previewPanel").appendChild(btn);

@@ -30,7 +30,7 @@ app.use(express.static("."));
 // AIプロンプト生成エンドポイント（gpt-4oでCanvas描画パラメータを生成）
 app.post("/proxy/generate-params", async (req, res) => {
 
-    const { memories } = req.body;
+    const { memories, conversationHistory } = req.body;
 
     console.log("受信した memories:", memories);
 
@@ -80,7 +80,8 @@ app.post("/proxy/generate-params", async (req, res) => {
                 model: "gpt-4o",
                 messages: [
                     { role: "system", content: systemPrompt },
-                    { role: "user",   content: `キーワード: ${memories.join("、")}` }
+                    ...(conversationHistory || []),
+                    { role: "user", content: `上記の会話をもとに、抽象画の描画命令を生成してください。キーワード補足: ${memories.join("、")}` }
                 ]
             })
         });
