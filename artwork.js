@@ -148,6 +148,28 @@ function execCommand(cmd) {
             break;
         }
 
+        case "rectangle": {
+            if (cmd.blur) ctx.filter = `blur(${cmd.blur}px)`;
+            ctx.fillStyle = cmd.color;
+            ctx.fillRect(
+                cmd.x      * W,
+                cmd.y      * H,
+                (cmd.width  ?? 1) * W,
+                (cmd.height ?? 1) * H
+            );
+            break;
+        }
+
+        case "line": {
+            ctx.beginPath();
+            ctx.strokeStyle = cmd.color;
+            ctx.lineWidth   = cmd.width ?? 2;
+            ctx.moveTo(cmd.x1 * W, cmd.y1 * H);
+            ctx.lineTo(cmd.x2 * W, cmd.y2 * H);
+            ctx.stroke();
+            break;
+        }
+
         case "noise": {
             const count = cmd.count ?? 2000;
             for (let i = 0; i < count; i++) {
