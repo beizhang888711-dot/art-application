@@ -12,6 +12,8 @@ AIを鏡として対話しながら、自分だけの作品を生み出す日本
 
 Art Reflection は、AIがユーザーを評価するのではなく「鏡」として対話し、ユーザーの内側にある物語や感情を作品へと変えていくクリエイティブ体験アプリです。
 
+ユーザーがワークショップで入力した言葉・感情をもとに、**IBM Consulting Advantage API（gpt-4o）** がカラーパレット・感情スコア・タイトル・リフレクション文を生成し、Canvas上に世界に一つだけの抽象画を描き出します。
+
 ---
 
 ## ページ構成
@@ -21,14 +23,16 @@ Art Reflection は、AIがユーザーを評価するのではなく「鏡」と
 | `index.html` | トップページ | ヒーロー・テーマ一覧・今日の質問・ギャラリー |
 | `theme.html` | テーマ選択 | 制作テーマを選ぶ画面 |
 | `workshop.html` | ワークショップ | AIとの対話・制作ワークショップ画面 |
-| `artwork.html` | 作品詳細 | 個別作品の表示・振り返り画面 |
+| `artwork.html` | 作品詳細 | AI生成パラメータによるCanvas描画・タイトル・リフレクション |
 | `gallery.html` | ギャラリー | 制作した作品の一覧表示 |
 
 ---
 
 ## 技術スタック
 
-- **HTML / CSS / JavaScript**（フレームワークなし、純粋な静的サイト）
+- **HTML / CSS / JavaScript**（フレームワークなし）
+- **Node.js / Express**（ローカルプロキシサーバー）
+- **IBM Consulting Advantage API**（gpt-4o によるパラメータ生成）
 - **Noto Sans JP**（Google Fonts）
 - **Vercel**（ホスティング・自動デプロイ）
 
@@ -36,18 +40,51 @@ Art Reflection は、AIがユーザーを評価するのではなく「鏡」と
 
 ## ローカルでの起動方法
 
+### 前提条件
+- Node.js 18以上
+- IBM Consulting Advantage API キー
+
+### セットアップ
+
 ```bash
 # リポジトリをクローン
 git clone https://github.com/beizhang888711-dot/art-application.git
 cd art-application
 
-# ブラウザで開く（またはローカルサーバーを使う）
-open index.html
+# 依存パッケージをインストール
+npm install
 
-# ローカルサーバーを使う場合
-python3 -m http.server 8080
-# → http://localhost:8080 にアクセス
+# APIキーを設定
+cp .env.example .env
+# .env を開いて ICA_API_KEY に取得したAPIキーを記入
 ```
+
+### 起動
+
+```bash
+node proxy.js
+# → http://localhost:3000 をブラウザで開く
+```
+
+> ⚠️ `python3 -m http.server` では AI機能が動作しません。必ず `node proxy.js` を使ってください。
+
+---
+
+## AI機能の仕組み
+
+```
+ユーザー入力（ワークショップ）
+    ↓
+proxy.js（Node.js）
+    ↓
+IBM Consulting Advantage API / gpt-4o
+    ↓
+カラーパレット・感情スコア・タイトル・リフレクション文を生成
+    ↓
+Canvas に抽象画を描画
+```
+
+APIキーは `.env` で管理し、**GitHubには上げません**。
 
 ---
 
