@@ -1,10 +1,29 @@
 // ======================================
 // Artwork Generator
-// Part 1
 // ======================================
 
+// ======================================
+// IBM Consulting Advantage API（gpt-4o）
+// APIキーはプロキシサーバー（proxy.js）側で管理
+// ======================================
+
+const PROXY_ENDPOINT = "http://localhost:3000/proxy";
+
+async function fetchAIParams(memories) {
+
+    const response = await fetch(`${PROXY_ENDPOINT}/generate-params`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ memories })
+    });
+
+    if (!response.ok) throw new Error(`API error: ${response.status}`);
+    return await response.json();
+
+}
+
 //-----------------------------
-// Canvas
+// Canvas（フォールバック用）
 //-----------------------------
 
 const canvas = document.getElementById("artCanvas");
@@ -27,6 +46,108 @@ const text = memories.join(" ").toLowerCase();
 console.log(memories);
 
 //-----------------------------
+// AI画像生成を試みる（失敗時はCanvasにフォールバック）
+//-----------------------------
+
+const aiLoading  = document.getElementById("aiLoading");
+const aiArtImage = document.getElementById("aiArtImage");
+
+//-----------------------------
+// 感情スコア（グローバル）
+//-----------------------------
+
+const emotion = {
+    calm:50,
+    joy:50,
+    nostalgia:50,
+    anxiety:50,
+    energy:50
+};
+
+//-----------------------------
+// 描画パラメータ（グローバル）
+//-----------------------------
+
+const params = {
+    palette:[],
+    background:"#EEF5FF",
+    circles:20,
+    curves:15,
+    blur:35,
+    noise:3500,
+    waves:false,
+    stars:false,
+    petals:false,
+    jagged:false
+};
+
+// AI取得パラメータをCanvasに適用する関数
+function applyAIParams(aiParams) {
+
+    // 感情スコアを上書き
+    if (aiParams.emotion) {
+        Object.assign(emotion, aiParams.emotion);
+    }
+
+    // カラーパレットを上書き
+    if (aiParams.palette && aiParams.palette.length) {
+        params.palette = [...aiParams.palette];
+    }
+
+    // 背景色を上書き
+    if (aiParams.background) {
+        params.background = aiParams.background;
+    }
+
+    // 描画フィーチャーを上書き
+    if (aiParams.features) {
+        params.waves  = aiParams.features.waves  ?? params.waves;
+        params.stars  = aiParams.features.stars  ?? params.stars;
+        params.petals = aiParams.features.petals ?? params.petals;
+        params.jagged = aiParams.features.jagged ?? params.jagged;
+    }
+
+    // タイトル・リフレクションを上書き
+    if (aiParams.title) {
+        const artTitle = document.getElementById("artTitle");
+        if (artTitle) artTitle.textContent = aiParams.title;
+    }
+
+    if (aiParams.reflection) {
+        const reflectionText = document.getElementById("reflectionText");
+        if (reflectionText) reflectionText.textContent = aiParams.reflection;
+    }
+
+}
+
+(async () => {
+
+    try {
+
+        const aiParams = await fetchAIParams(memories);
+        applyAIParams(aiParams);
+        console.log("✅ AIパラメータ取得完了", aiParams);
+
+    } catch (err) {
+
+        console.warn("AIパラメータ取得に失敗。デフォルト描画にフォールバックします。", err);
+
+    } finally {
+
+        // ローディング非表示・Canvas表示
+        aiLoading.style.display = "none";
+        canvas.style.display    = "block";
+
+        // Canvas描画を実行（AIパラメータ適用後）
+        drawArtwork();
+
+    }
+
+})();
+
+function drawArtwork() {
+
+//-----------------------------
 // キーワード表示
 //-----------------------------
 
@@ -44,52 +165,6 @@ memories.forEach(word=>{
     keywordContainer.appendChild(tag);
 
 });
-
-//-----------------------------
-// 感情スコア
-//-----------------------------
-
-const emotion={
-
-    calm:50,
-
-    joy:50,
-
-    nostalgia:50,
-
-    anxiety:50,
-
-    energy:50
-
-};
-
-//-----------------------------
-// 描画パラメータ
-//-----------------------------
-
-const params={
-
-    palette:[],
-
-    background:"#EEF5FF",
-
-    circles:20,
-
-    curves:15,
-
-    blur:35,
-
-    noise:3500,
-
-    waves:false,
-
-    stars:false,
-
-    petals:false,
-
-    jagged:false
-
-};
 
 //-----------------------------
 // 色追加
@@ -991,3 +1066,5 @@ alert("ギャラリーに保存しました！");
     };
 
 }
+
+} // end drawArtwork

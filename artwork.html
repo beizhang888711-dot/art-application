@@ -42,10 +42,26 @@
 
     <section class="artPanel glass">
 
+        <!-- AIローディング表示 -->
+        <div id="aiLoading" class="aiLoading">
+            <div class="aiLoadingSpinner"></div>
+            <p>AIが画像を生成しています...</p>
+        </div>
+
+        <!-- AI生成画像（成功時に表示） -->
+        <img
+            id="aiArtImage"
+            class="aiArtImage"
+            alt="AI Generated Artwork"
+            style="display:none;"
+        >
+
+        <!-- フォールバック用Canvas（API失敗時） -->
         <canvas
             id="artCanvas"
             width="700"
-            height="700">
+            height="700"
+            style="display:none;">
         </canvas>
 
     </section>
