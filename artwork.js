@@ -82,6 +82,8 @@ const params = {
 };
 
 // AI取得パラメータをCanvasに適用する関数
+let aiApplied = false;
+
 function applyAIParams(aiParams) {
 
     // 感情スコアを上書き
@@ -107,6 +109,12 @@ function applyAIParams(aiParams) {
         params.jagged = aiParams.features.jagged ?? params.jagged;
     }
 
+    // 感情スコアを描画強度に反映
+    params.circles = 15 + Math.round(emotion.calm  * 0.3);
+    params.curves  = 10 + Math.round(emotion.energy * 0.25);
+    params.blur    = 20 + Math.round(emotion.calm   * 0.4);
+    params.noise   = Math.round(emotion.anxiety * 60);
+
     // タイトル・リフレクションを上書き
     if (aiParams.title) {
         const artTitle = document.getElementById("artTitle");
@@ -117,6 +125,8 @@ function applyAIParams(aiParams) {
         const reflectionText = document.getElementById("reflectionText");
         if (reflectionText) reflectionText.textContent = aiParams.reflection;
     }
+
+    aiApplied = true;
 
 }
 
@@ -177,7 +187,7 @@ function addColor(...colors){
 }
 
 //-----------------------------
-// キーワード解析
+// キーワード解析（AIが失敗した場合のフォールバック）
 //-----------------------------
 
 function has(word){
@@ -185,6 +195,8 @@ function has(word){
     return text.includes(word);
 
 }
+
+if (!aiApplied) {
 
 // 夏
 
@@ -403,6 +415,8 @@ if(params.palette.length===0){
     ];
 
 }
+
+} // end if (!aiApplied)
 
 //-----------------------------
 // ランダムカラー
