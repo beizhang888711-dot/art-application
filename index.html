@@ -21,11 +21,11 @@
         Art Reflection
     </div>
 
-    <nav>
-        <a href="#">Gallery</a>
-        <a href="#">Explore</a>
-        <a href="#">About</a>
-    </nav>
+<nav>
+    <a href="gallery.html">Gallery</a>
+    <a href="#">Explore</a>
+    <a href="#">About</a>
+</nav>
 
 </header>
 
@@ -178,23 +178,25 @@ Today's Reflection
 
 <section class="gallery">
 
-<h2>
+    <h2>あなたのギャラリー</h2>
 
-あなたのギャラリー
+    <div
+        id="homeGallery"
+        class="galleryGrid">
 
-</h2>
+    </div>
 
-<div class="galleryGrid">
+    <div class="galleryButtonArea">
 
-<div class="art"></div>
+        <button
+            class="mainButton"
+            onclick="window.location.href='gallery.html'">
 
-<div class="art"></div>
+            ギャラリーを見る →
 
-<div class="art"></div>
+        </button>
 
-<div class="art"></div>
-
-</div>
+    </div>
 
 </section>
 
@@ -221,4 +223,5 @@ Create, Reflect, Discover.
 <script src="script.js"></script>
 
 </body>
+<script src="index.js"></script>
 </html>

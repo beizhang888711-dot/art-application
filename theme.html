@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>テーマを選ぶ</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css">
+
+    <link
+        rel="stylesheet"
+        href="theme.css">
+
+</head>
+
+<body>
+
+    <main class="themePage">
+
+        <div class="glassCard">
+
+            <p class="pageTag">
+                AI Creative Workshop
+            </p>
+
+            <h1>
+                今日のテーマを<br>
+                選びましょう
+            </h1>
+
+            <p class="pageDescription">
+
+                まずは今日向き合いたいテーマを選びます。<br>
+                あなたの回答をもとにAIが作品を生成します。
+
+            </p>
+            
+<div class="themeGrid">
+
+    <button class="themeCard" data-theme="記憶">
+        <div class="emoji">🌙</div>
+        <h3>記憶</h3>
+        <p>幼い頃の景色や忘れられない出来事</p>
+    </button>
+
+    <button class="themeCard" data-theme="海">
+        <div class="emoji">🌊</div>
+        <h3>海</h3>
+        <p>心が落ち着く風景を思い描く</p>
+    </button>
+
+    <button class="themeCard" data-theme="情熱">
+        <div class="emoji">🔥</div>
+        <h3>情熱</h3>
+        <p>今、一番夢中になっていること</p>
+    </button>
+
+    <button class="themeCard" data-theme="希望">
+        <div class="emoji">🌱</div>
+        <h3>希望</h3>
+        <p>未来の自分へ贈る作品</p>
+    </button>
+
+    <button class="themeCard" data-theme="孤独">
+        <div class="emoji">☁️</div>
+        <h3>孤独</h3>
+        <p>言葉にならない感情を描く</p>
+    </button>
+
+    <button class="themeCard" data-theme="夢">
+        <div class="emoji">✨</div>
+        <h3>夢</h3>
+        <p>現実では見られない世界</p>
+    </button>
+
+</div>
+
+            <div class="customArea">
+
+                <input
+
+                    id="customTheme"
+
+                    type="text"
+
+                    placeholder="自由なテーマを入力">
+
+                <button
+                    id="startWorkshop"
+                    class="mainButton">
+
+                    このテーマで始める →
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </main>
+
+    <script src="theme.js"></script>
+
+</body>
+
+</html>

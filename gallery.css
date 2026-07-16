@@ -1,0 +1,513 @@
+/* ==========================================
+   Reset
+========================================== */
+
+*{
+
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+
+}
+
+body{
+
+    font-family:"Segoe UI",sans-serif;
+
+    background:linear-gradient(
+        135deg,
+        #EEF5FF,
+        #F8FBFF,
+        #FFFFFF
+    );
+
+    color:#1B2A41;
+
+    min-height:100vh;
+
+}
+
+.background{
+
+    position:fixed;
+
+    inset:0;
+
+    background:
+        radial-gradient(circle at 20% 20%,rgba(108,140,255,.18),transparent 30%),
+        radial-gradient(circle at 80% 20%,rgba(255,158,183,.15),transparent 30%),
+        radial-gradient(circle at 50% 80%,rgba(138,230,207,.15),transparent 35%);
+
+    filter:blur(80px);
+
+    z-index:-1;
+
+}
+
+/* ==========================================
+   Layout
+========================================== */
+
+.container{
+
+    width:min(1300px,92%);
+
+    margin:auto;
+
+    padding:50px 0 80px;
+
+}
+
+.pageHeader{
+
+    text-align:center;
+
+    margin-bottom:40px;
+
+}
+
+.pageHeader h1{
+
+    font-size:52px;
+
+    margin-bottom:12px;
+
+}
+
+.pageHeader p{
+
+    color:#666;
+
+    font-size:18px;
+
+}
+
+/* ==========================================
+   Glass
+========================================== */
+
+.glass{
+
+    background:rgba(255,255,255,.35);
+
+    backdrop-filter:blur(18px);
+
+    border-radius:25px;
+
+    border:1px solid rgba(255,255,255,.45);
+
+    box-shadow:
+
+        0 12px 35px rgba(0,0,0,.08),
+
+        inset 0 1px rgba(255,255,255,.45);
+
+}
+
+/* ==========================================
+   Toolbar
+========================================== */
+
+.toolbar{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    gap:20px;
+
+    padding:20px 30px;
+
+    margin-bottom:40px;
+
+    flex-wrap:wrap;
+
+}
+
+.toolbar input{
+
+    flex:1;
+
+    min-width:250px;
+
+    border:none;
+
+    outline:none;
+
+    padding:14px 20px;
+
+    border-radius:999px;
+
+    font-size:15px;
+
+}
+
+.toolbar select{
+
+    border:none;
+
+    outline:none;
+
+    padding:14px 20px;
+
+    border-radius:999px;
+
+    font-size:15px;
+
+}
+
+/* ==========================================
+   Gallery Grid
+========================================== */
+
+.galleryGrid{
+
+    display:grid;
+
+    grid-template-columns:
+
+        repeat(auto-fill,minmax(320px,1fr));
+
+    gap:30px;
+
+}
+
+/* ==========================================
+   Card
+========================================== */
+
+.galleryCard{
+
+    overflow:hidden;
+
+    transition:.35s;
+
+    animation:fadeUp .8s ease;
+
+}
+
+.galleryCard:hover{
+
+    transform:
+
+        translateY(-8px)
+
+        scale(1.02);
+
+}
+
+.galleryImage{
+
+    width:100%;
+
+    height:240px;
+
+    object-fit:cover;
+
+    display:block;
+
+}
+
+.cardBody{
+
+    padding:22px;
+
+}
+
+.cardTitle{
+
+    font-size:24px;
+
+    margin-bottom:10px;
+
+}
+
+.cardDate{
+
+    color:#777;
+
+    font-size:14px;
+
+    margin-bottom:18px;
+
+}
+
+.cardReflection{
+
+    line-height:1.8;
+
+    color:#555;
+
+    margin-bottom:22px;
+
+}
+
+/* ==========================================
+   Keywords
+========================================== */
+
+.keywordArea{
+
+    display:flex;
+
+    flex-wrap:wrap;
+
+    gap:10px;
+
+    margin-bottom:22px;
+
+}
+
+.keyword{
+
+    background:white;
+
+    padding:8px 15px;
+
+    border-radius:999px;
+
+    font-size:13px;
+
+    box-shadow:
+
+        0 5px 15px rgba(0,0,0,.06);
+
+}
+
+/* ==========================================
+   Buttons
+========================================== */
+
+.cardButtons{
+
+    display:flex;
+
+    gap:12px;
+
+    flex-wrap:wrap;
+
+}
+
+.mainButton{
+
+    border:none;
+
+    background:#6C8CFF;
+
+    color:white;
+
+    padding:12px 18px;
+
+    border-radius:999px;
+
+    cursor:pointer;
+
+    transition:.3s;
+
+}
+
+.mainButton:hover{
+
+    transform:translateY(-2px);
+
+    box-shadow:
+
+        0 10px 25px rgba(108,140,255,.3);
+
+}
+
+.subButton{
+
+    border:none;
+
+    background:white;
+
+    padding:12px 18px;
+
+    border-radius:999px;
+
+    cursor:pointer;
+
+    transition:.3s;
+
+}
+
+.subButton:hover{
+
+    transform:translateY(-2px);
+
+}
+
+/* ==========================================
+   Empty
+========================================== */
+
+.emptyState{
+
+    display:none;
+
+    text-align:center;
+
+    padding:60px;
+
+}
+
+.emptyState h2{
+
+    margin-bottom:20px;
+
+}
+
+.emptyState p{
+
+    color:#666;
+
+    margin-bottom:25px;
+
+}
+
+/* ==========================================
+   Footer
+========================================== */
+
+.buttonArea{
+
+    display:flex;
+
+    justify-content:center;
+
+    margin-top:50px;
+
+}
+
+/* ==========================================
+   Animation
+========================================== */
+
+@keyframes fadeUp{
+
+    from{
+
+        opacity:0;
+
+        transform:translateY(30px);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:translateY(0);
+
+    }
+
+}
+
+/* ==========================================
+   Responsive
+========================================== */
+
+@media(max-width:768px){
+
+    .pageHeader h1{
+
+        font-size:36px;
+
+    }
+
+    .toolbar{
+
+        flex-direction:column;
+
+    }
+
+}
+/* ==========================================
+   Modal
+========================================== */
+
+.modal{
+
+    display:none;
+
+    position:fixed;
+
+    inset:0;
+
+    background:rgba(0,0,0,.55);
+
+    justify-content:center;
+
+    align-items:center;
+
+    z-index:999;
+
+}
+
+.modalContent{
+
+    width:90%;
+    max-width:1200px;
+
+    max-height:90vh;
+
+    overflow-y:auto;
+
+    padding:40px;
+
+    border-radius:25px;
+
+    position:relative;
+
+}
+
+.modalImage{
+
+    display:block;
+
+    width:100%;
+
+    max-width:750px;
+
+    max-height:60vh;
+
+    object-fit:contain;
+
+    margin:0 auto 35px;
+
+    border-radius:20px;
+
+}
+
+.close{
+
+    position:absolute;
+
+    right:25px;
+
+    top:20px;
+
+    font-size:35px;
+
+    cursor:pointer;
+
+}
+
+#modalReflection{
+
+    line-height:1.8;
+
+    margin:25px 0;
+
+}
+
+#modalDate{
+
+    margin-top:20px;
+
+    color:#777;
+
+}

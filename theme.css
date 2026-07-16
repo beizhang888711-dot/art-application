@@ -1,0 +1,285 @@
+/* ===========================
+   Theme Page
+=========================== */
+
+.themePage{
+
+    min-height:100vh;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    padding:60px 20px;
+
+}
+
+.glassCard{
+
+    width:min(1000px,90%);
+
+    padding:60px;
+
+    border-radius:35px;
+
+    background:rgba(255,255,255,.45);
+
+    backdrop-filter:blur(20px);
+
+    -webkit-backdrop-filter:blur(20px);
+
+    box-shadow:
+
+        0 20px 60px rgba(0,0,0,.08);
+
+}
+
+.pageTag{
+
+    display:inline-block;
+
+    padding:10px 20px;
+
+    border-radius:999px;
+
+    background:white;
+
+    color:#555;
+
+    margin-bottom:25px;
+
+}
+
+.glassCard h1{
+
+    font-size:52px;
+
+    line-height:1.2;
+
+    margin-bottom:20px;
+
+}
+
+.pageDescription{
+
+    color:#666;
+
+    line-height:1.8;
+
+    margin-bottom:50px;
+
+}
+
+
+/* ===========================
+   Theme Grid
+=========================== */
+
+.themeGrid{
+
+    display:grid;
+
+    grid-template-columns:repeat(3,1fr);
+
+    gap:25px;
+
+    margin-bottom:50px;
+
+}
+
+.themeCard{
+
+    border:none;
+
+    border-radius:28px;
+
+    padding:35px;
+
+    background:rgba(255,255,255,.55);
+
+    backdrop-filter:blur(15px);
+
+    cursor:pointer;
+
+    transition:.3s;
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:flex-start;
+
+    text-align:left;
+
+    gap:12px;
+
+    min-height:240px;
+
+}
+
+.themeCard .emoji{
+
+    font-size:48px;
+
+    margin-bottom:10px;
+
+}
+.themeCard h3{
+
+    margin:0;
+
+    font-size:32px;
+
+    font-weight:700;
+
+    color:#333;
+
+}
+.themeCard p{
+
+    margin-top:10px;
+
+    font-size:16px;
+
+    line-height:1.6;
+
+    color:#666;
+
+}
+
+.themeCard:hover{
+
+    transform:translateY(-8px);
+
+    box-shadow:
+
+        0 15px 40px rgba(0,0,0,.12);
+
+}
+
+.themeCard.selected{
+
+    background:
+
+        linear-gradient(
+            135deg,
+            #6C8CFF,
+            #9D7CFF
+        );
+
+    color:white;
+
+}
+.themeCard.selected h3{
+
+    color:white;
+
+}
+
+.themeCard.selected p{
+
+    color:rgba(255,255,255,.9);
+
+}
+
+.themeCard.selected span{
+
+    color:white;
+
+}
+
+
+/* ===========================
+   Custom Theme
+=========================== */
+
+.customArea{
+
+    display:flex;
+
+    gap:20px;
+
+    align-items:center;
+
+}
+
+#customTheme{
+
+    flex:1;
+
+    padding:18px 22px;
+
+    border:none;
+
+    border-radius:18px;
+
+    background:white;
+
+    font-size:18px;
+
+    outline:none;
+
+}
+
+#startWorkshop{
+
+    white-space:nowrap;
+
+}
+
+
+/* ===========================
+   Responsive
+=========================== */
+
+@media(max-width:900px){
+
+    .themeGrid{
+
+        grid-template-columns:repeat(2,1fr);
+
+    }
+
+}
+
+@media(max-width:600px){
+
+    .glassCard{
+
+        padding:35px;
+
+    }
+
+    .glassCard h1{
+
+        font-size:38px;
+
+    }
+
+    .themeGrid{
+
+        grid-template-columns:1fr;
+
+    }
+
+    .customArea{
+
+        flex-direction:column;
+
+    }
+
+    #customTheme{
+
+        width:100%;
+
+    }
+
+    #startWorkshop{
+
+        width:100%;
+
+    }
+
+}

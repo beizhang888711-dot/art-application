@@ -1,13 +1,16 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
 
-<title>Art Reflection | Artwork</title>
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
 
-<link rel="stylesheet" href="style.css">
+    <title>Generated Artwork</title>
+
+    <link rel="stylesheet" href="artwork.css">
 
 </head>
 
@@ -15,170 +18,157 @@
 
 <div class="background"></div>
 
-<header>
+<main class="container">
 
-<div class="logo">
+    <!-- ================================= -->
+    <!-- タイトル -->
+    <!-- ================================= -->
 
-Art Reflection
+    <section class="pageHeader">
 
-</div>
+        <h1>Generated Artwork</h1>
 
-<nav>
+        <p>
+            あなたとAIとの対話から生まれた、
+            世界に一つだけの抽象作品です。
+        </p>
 
-<a href="gallery.html">Gallery</a>
+    </section>
 
-<a href="index.html">Home</a>
 
-</nav>
+    <!-- ================================= -->
+    <!-- Canvas -->
+    <!-- ================================= -->
 
-</header>
+    <section class="artPanel glass">
 
-<section class="artworkPage">
+        <canvas
+            id="artCanvas"
+            width="700"
+            height="700">
+        </canvas>
 
-<div class="imageCard">
+    </section>
 
-<div class="generatedArt">
 
-<canvas id="artCanvas" width="700" height="700"></canvas>
+    <!-- ================================= -->
+    <!-- 作品情報 -->
+    <!-- ================================= -->
 
-</div>
+    <section class="infoPanel glass">
 
-</div>
+        <h2 id="artTitle">
 
-<div class="infoPanel">
+            Reflection
 
-<h1>
+        </h2>
 
-夏の記憶
+        <p class="subTitle">
 
-</h1>
+            AI Generated Abstract Artwork
 
-<p>
+        </p>
 
-AIとの対話から生まれた、
-あなただけのアート作品です。
+        <div class="divider"></div>
 
-</p>
+        <div class="reflectionBox">
 
-<div class="buttonRow">
+            <h3>
 
-<button class="mainButton">
+                AI Reflection
 
-保存する
+            </h3>
 
-</button>
+            <p id="reflectionText">
 
-<button class="mainButton secondary">
+                あなたの対話内容をもとに、
+                AIが作品の意味を解釈します。
 
-公開する
+            </p>
 
-</button>
+        </div>
 
-</div>
+    </section>
 
-</div>
+
+    <!-- ================================= -->
+    <!-- キーワード -->
+    <!-- ================================= -->
+
+    <section class="keywordPanel glass">
+
+        <h3>
+
+            Extracted Keywords
+
+        </h3>
+
+        <div
+            id="keywordContainer"
+            class="keywordContainer">
+
+        </div>
+
+    </section>
+
+
+    <!-- ================================= -->
+    <!-- ボタン -->
+    <!-- ================================= -->
+
+<section class="buttonArea">
+
+    <!-- 上段 -->
+    <div class="buttonRow">
+
+        <button id="saveGalleryBtn" class="mainButton">
+            💾 ギャラリーに保存
+        </button>
+
+        <button id="downloadBtn" class="subButton">
+            ⬇ PNGダウンロード
+        </button>
+
+        <button id="communityBtn" class="mainButton">
+            🌍 コミュニティへ投稿
+        </button>
+
+    </div>
+
+    <!-- 下段 -->
+    <div class="buttonRow">
+
+        <button
+            class="mainButton"
+            onclick="location.reload()">
+
+            🔄 もう一度生成する
+
+        </button>
+
+        <button
+            class="subButton"
+            onclick="window.location.href='workshop.html'">
+
+            ← ワークショップへ戻る
+
+        </button>
+
+        <button
+            class="subButton"
+            onclick="window.location.href='index.html'">
+
+            🏠 ホームへ戻る
+
+        </button>
+
+    </div>
 
 </section>
 
-<section class="details">
 
-<div class="noteCard">
+</main>
 
-<h2>
-
-制作ノート
-
-</h2>
-
-<ul>
-
-<li>🌙 祖父との思い出</li>
-
-<li>🌅 夕焼け</li>
-
-<li>🌾 畳の香り</li>
-
-<li>☀ 夏休み</li>
-
-</ul>
-
-</div>
-
-<div class="emotionCard">
-
-<h2>
-
-感情マップ
-
-</h2>
-
-<div class="emotion">
-
-<span>🌱 安心</span>
-
-<div class="bar">
-
-<div class="fill" style="width:85%"></div>
-
-</div>
-
-</div>
-
-<div class="emotion">
-
-<span>🌊 静けさ</span>
-
-<div class="bar">
-
-<div class="fill" style="width:70%"></div>
-
-</div>
-
-</div>
-
-<div class="emotion">
-
-<span>🌙 懐かしさ</span>
-
-<div class="bar">
-
-<div class="fill" style="width:95%"></div>
-
-</div>
-
-</div>
-
-</div>
-
-</section>
-
-<section class="reflection">
-
-<h2>
-
-Reflection AI
-
-</h2>
-
-<p>
-
-あなたは今回の対話で
-
-<strong>「祖父」</strong>
-
-<strong>「夏」</strong>
-
-<strong>「夕焼け」</strong>
-
-という記憶を何度も語りました。
-
-作品そのものだけでなく、
-その背景にある物語こそ、
-あなたらしさなのかもしれません。
-
-</p>
-
-</section>
 
 <script src="artwork.js"></script>
 

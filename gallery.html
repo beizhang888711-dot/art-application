@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>My Gallery</title>
+
+    <link rel="stylesheet" href="gallery.css">
+
+</head>
+
+<body>
+
+<div class="background"></div>
+
+<main class="container">
+
+    <header class="pageHeader">
+
+        <h1>My Gallery</h1>
+
+        <p>
+
+            あなたがAIと共創した作品一覧
+
+        </p>
+
+    </header>
+
+    <!-- ===== Toolbar ===== -->
+
+    <section class="toolbar glass">
+
+        <input
+
+            id="searchInput"
+
+            type="text"
+
+            placeholder="タイトルを検索">
+
+        <select id="sortSelect">
+
+            <option value="new">
+
+                新しい順
+
+            </option>
+
+            <option value="old">
+
+                古い順
+
+            </option>
+
+        </select>
+
+    </section>
+
+    <!-- ===== Gallery ===== -->
+
+    <section
+
+        id="galleryGrid"
+
+        class="galleryGrid">
+
+    </section>
+
+    <!-- ===== Empty ===== -->
+
+    <section
+
+        id="emptyState"
+
+        class="glass emptyState">
+
+        <h2>
+
+            まだ作品がありません
+
+        </h2>
+
+        <p>
+
+            ワークショップで作品を生成すると
+            ここに保存されます。
+
+        </p>
+
+        <button
+
+            class="mainButton"
+
+            onclick="window.location.href='workshop.html'">
+
+            作品をつくる
+
+        </button>
+
+    </section>
+
+    <!-- ===== Footer ===== -->
+
+    <div class="buttonArea">
+
+        <button
+
+            class="subButton"
+
+            onclick="window.location.href='index.html'">
+
+            ← Home
+
+        </button>
+
+    </div>
+<!-- ================================= -->
+<!-- Modal -->
+<!-- ================================= -->
+
+<div id="modal" class="modal">
+
+    <div class="modalContent glass">
+
+        <span id="closeModal" class="close">
+
+            ×
+
+        </span>
+
+        <h2 id="modalTitle"></h2>
+
+        <img
+            id="modalImage"
+            class="modalImage">
+
+        <p id="modalReflection"></p>
+
+        <div
+            id="modalKeywords"
+            class="keywordArea">
+
+        </div>
+
+        <p id="modalDate"></p>
+
+        <button
+            id="modalDownload"
+            class="mainButton">
+
+            ⬇ PNGダウンロード
+
+        </button>
+
+    </div>
+
+</div>
+</main>
+
+<script src="gallery.js"></script>
+
+</body>
+
+</html>

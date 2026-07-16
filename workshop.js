@@ -17,6 +17,12 @@ const emotionBars = document.querySelectorAll(".fill");
 let step = 0;
 let memories = [];
 
+// ======================================
+// 選択したテーマを取得
+// ======================================
+
+const selectedTheme =
+localStorage.getItem("selectedTheme") || "自由";
 const questions = [
 
 "ありがとうございます。では、その時に一番印象に残っている『色』は何ですか？",
@@ -188,3 +194,14 @@ input.addEventListener("keypress",(e)=>{
     }
 
 });
+// ======================================
+// テーマ表示
+// ======================================
+
+const themeName = document.getElementById("themeName");
+
+if(themeName){
+
+    themeName.textContent = `「${selectedTheme}」`;
+
+}
