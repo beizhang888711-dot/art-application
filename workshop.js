@@ -209,8 +209,13 @@ input.addEventListener("keypress", e => {
 
     sendButton.disabled = true;
     input.disabled      = true;
-    showTyping();
 
+    // 挨拶メッセージを先に表示
+    const greeting = `こんにちは。今日は<strong>「${selectedTheme}」</strong>をテーマに、あなた自身を映す作品を一緒に作ります。`;
+    addMessage(greeting, "ai");
+
+    // AIが最初の質問を生成
+    showTyping();
     try {
         const firstQuestion = await fetchNextQuestion();
         removeTyping();
@@ -218,7 +223,9 @@ input.addEventListener("keypress", e => {
         addMessage(firstQuestion, "ai");
     } catch {
         removeTyping();
-        addMessage(`「${selectedTheme}」というテーマを選んでくれましたね。このテーマを選んだ理由や、最初に浮かんだイメージを教えてください。`, "ai");
+        const fallback = `「${selectedTheme}」というテーマを選んでくれましたね。このテーマを選んだ理由や、最初に浮かんだイメージを教えてください。`;
+        history.push({ role: "assistant", content: fallback });
+        addMessage(fallback, "ai");
     }
 
     sendButton.disabled = false;
