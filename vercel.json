@@ -1,7 +1,4 @@
 {
-  "functions": {
-    "api/*.js": { "runtime": "nodejs20.x" }
-  },
   "rewrites": [
     { "source": "/proxy/generate-params", "destination": "/api/generate-params" },
     { "source": "/proxy/chat",            "destination": "/api/chat" }
