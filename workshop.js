@@ -3,7 +3,7 @@
 // AIが回答に応じて動的に次の質問を生成する
 // ======================================
 
-const PROXY_ENDPOINT = "http://localhost:3000/proxy";
+const PROXY_ENDPOINT = "/api";
 const TOTAL_STEPS    = 4; // 質問数
 
 // ======================================

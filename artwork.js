@@ -3,7 +3,7 @@
 // AIが返す高レベルな要素定義をCanvasに変換して描画する
 // ======================================
 
-const PROXY_ENDPOINT = "http://localhost:3000/proxy";
+const PROXY_ENDPOINT = "/api";
 
 async function fetchAIParams(memories, conversationHistory) {
     const response = await fetch(`${PROXY_ENDPOINT}/generate-params`, {
