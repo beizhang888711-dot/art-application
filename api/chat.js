@@ -28,6 +28,10 @@ export default async function handler(req, res) {
         ...history.map(h => ({ role: h.role, content: h.content }))
     ];
 
+    if (!process.env.ICA_ENDPOINT || !process.env.ICA_API_KEY) {
+        return res.status(500).json({ error: "環境変数 ICA_ENDPOINT / ICA_API_KEY が未設定です" });
+    }
+
     try {
         const response = await fetch(`${process.env.ICA_ENDPOINT}/chat/completions`, {
             method: "POST",
