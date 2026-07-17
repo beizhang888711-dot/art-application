@@ -10,7 +10,14 @@ module.exports = async function handler(req, res) {
     if (req.method === "OPTIONS") return res.status(200).end();
     if (req.method !== "POST") return res.status(405).json({ error: "Method Not Allowed" });
 
-    const { memories, conversationHistory } = req.body;
+    // Vercel Functions はボディを自動パースしないので手動でパース
+    let body = req.body;
+    if (typeof body === "string") {
+        try { body = JSON.parse(body); } catch { body = {}; }
+    }
+    if (!body || typeof body !== "object") body = {};
+
+    const { memories, conversationHistory } = body;
 
     if (!memories || !Array.isArray(memories)) {
         return res.status(400).json({ error: "memories が配列ではありません" });

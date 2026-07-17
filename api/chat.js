@@ -10,7 +10,14 @@ module.exports = async function handler(req, res) {
     if (req.method === "OPTIONS") return res.status(200).end();
     if (req.method !== "POST") return res.status(405).json({ error: "Method Not Allowed" });
 
-    const { theme, history, step, totalSteps } = req.body;
+    // Vercel Functions はボディを自動パースしないので手動でパース
+    let body = req.body;
+    if (typeof body === "string") {
+        try { body = JSON.parse(body); } catch { body = {}; }
+    }
+    if (!body || typeof body !== "object") body = {};
+
+    const { theme, history, step, totalSteps } = body;
 
     const systemPrompt = `あなたはアートセラピストのAIです。
 ユーザーが選んだテーマ「${theme}」をもとに、感情や記憶を深掘りする質問を1つだけ生成してください。
