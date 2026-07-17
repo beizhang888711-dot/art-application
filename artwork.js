@@ -1,6 +1,6 @@
 // ======================================
-// Artwork Generator — commands方式
-// AIが描画命令を直接生成し、Canvasに実行する
+// Artwork Generator — artisticVision / elements方式
+// AIが返す高レベルな要素定義をCanvasに変換して描画する
 // ======================================
 
 const PROXY_ENDPOINT = "http://localhost:3000/proxy";
@@ -65,136 +65,200 @@ function lighten(hex, amount) { return adjustColor(hex,  amount); }
 function darken (hex, amount) { return adjustColor(hex, -amount); }
 
 // ======================================
-// コマンド実行エンジン
+// elements → Canvas 変換レンダラー
 // ======================================
 
-function execCommand(cmd) {
+/**
+ * element.visuals の brushQuality / movement / area などをもとに
+ * 各要素タイプを Canvas に描画する
+ */
+function renderElement(el) {
+    if (!el || !el.visuals) return;
+
+    const v     = el.visuals;
+    const alpha = typeof v.alpha === "number" ? v.alpha : 0.6;
+    const color = v.primaryColor   ?? "#888888";
+    const color2= v.secondaryColor ?? color;
+    const ax    = typeof v.area?.x     === "number" ? v.area.x     : 0.5;
+    const ay    = typeof v.area?.y     === "number" ? v.area.y     : 0.5;
+    const scale = typeof v.area?.scale === "number" ? v.area.scale : 0.4;
+    const cx    = ax * W;
+    const cy    = ay * H;
+    const size  = scale * Math.min(W, H);
+
+    // brushQuality → blur量
+    const blurMap = { "滑らか": 30, "滲み": 50, "荒い": 4, "点描": 0 };
+    const blur = blurMap[v.brushQuality] ?? 10;
+
+    // movement → 動きの係数
+    const moveMap = { "静止": 0, "緩やかな渦": 1, "鋭い直線": 2, "拡散": 3 };
+    const moveMode = moveMap[v.movement] ?? 0;
 
     ctx.save();
-    ctx.globalAlpha = cmd.alpha ?? 1;
+    ctx.globalAlpha = alpha;
+    if (blur > 0) ctx.filter = `blur(${blur}px)`;
 
-    switch (cmd.type) {
+    switch (el.type) {
 
-        case "circle": {
-            const x = cmd.x * W;
-            const y = cmd.y * H;
-            const r = cmd.r * Math.min(W, H);
-            ctx.filter = cmd.blur ? `blur(${cmd.blur}px)` : "none";
-            ctx.beginPath();
-            ctx.fillStyle = cmd.color;
-            ctx.arc(x, y, r, 0, Math.PI * 2);
-            ctx.fill();
-            break;
-        }
+        // 背景テクスチャ層：大きなぼかし円 + ノイズ
+        case "texture_layer": {
+            const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, size);
+            grad.addColorStop(0,   color);
+            grad.addColorStop(0.6, color2);
+            grad.addColorStop(1,   "transparent");
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, W, H);
 
-        case "curve": {
-            ctx.beginPath();
-            ctx.strokeStyle = cmd.color;
-            ctx.lineWidth   = cmd.width ?? 2;
-            ctx.moveTo(cmd.x1 * W, cmd.y1 * H);
-            ctx.bezierCurveTo(
-                cmd.cx1 * W, cmd.cy1 * H,
-                cmd.cx2 * W, cmd.cy2 * H,
-                cmd.x2  * W, cmd.y2  * H
-            );
-            ctx.stroke();
-            break;
-        }
-
-        case "wave": {
-            const baseY = cmd.y * H;
-            const amp   = (cmd.amplitude ?? 0.04) * H;
-            const freq  = cmd.frequency ?? 0.02;
-            ctx.beginPath();
-            ctx.strokeStyle = cmd.color;
-            ctx.lineWidth   = cmd.width ?? 2;
-            for (let x = 0; x <= W; x++) {
-                const y = baseY + Math.sin(x * freq) * amp;
-                x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-            }
-            ctx.stroke();
-            break;
-        }
-
-        case "dots": {
-            const count = cmd.count ?? 50;
-            for (let i = 0; i < count; i++) {
-                const r = rand(cmd.minR ?? 2, cmd.maxR ?? 8);
-                ctx.beginPath();
-                ctx.fillStyle = cmd.color;
-                ctx.arc(rand(0, W), rand(0, H), r, 0, Math.PI * 2);
-                ctx.fill();
-            }
-            break;
-        }
-
-        case "ray": {
-            const cx    = (cmd.cx ?? 0.5) * W;
-            const cy    = (cmd.cy ?? 0.5) * H;
-            const count = cmd.count ?? 12;
-            ctx.strokeStyle = cmd.color;
-            ctx.lineWidth   = cmd.width ?? 3;
-            for (let i = 0; i < count; i++) {
-                const angle = (Math.PI * 2 / count) * i;
-                ctx.beginPath();
-                ctx.moveTo(cx, cy);
-                ctx.lineTo(cx + Math.cos(angle) * W, cy + Math.sin(angle) * W);
-                ctx.stroke();
-            }
-            break;
-        }
-
-        case "spiral": {
-            const cx = (cmd.cx ?? 0.5) * W;
-            const cy = (cmd.cy ?? 0.5) * H;
-            ctx.beginPath();
-            ctx.strokeStyle = cmd.color;
-            ctx.lineWidth   = cmd.width ?? 2;
-            for (let t = 0; t < Math.PI * 10; t += 0.05) {
-                const r = t * rand(4, 10);
-                const x = cx + r * Math.cos(t);
-                const y = cy + r * Math.sin(t);
-                t < 0.05 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-            }
-            ctx.stroke();
-            break;
-        }
-
-        case "rectangle": {
-            if (cmd.blur) ctx.filter = `blur(${cmd.blur}px)`;
-            ctx.fillStyle = cmd.color;
-            ctx.fillRect(
-                cmd.x      * W,
-                cmd.y      * H,
-                (cmd.width  ?? 1) * W,
-                (cmd.height ?? 1) * H
-            );
-            break;
-        }
-
-        case "line": {
-            ctx.beginPath();
-            ctx.strokeStyle = cmd.color;
-            ctx.lineWidth   = cmd.width ?? 2;
-            ctx.moveTo(cmd.x1 * W, cmd.y1 * H);
-            ctx.lineTo(cmd.x2 * W, cmd.y2 * H);
-            ctx.stroke();
-            break;
-        }
-
-        case "noise": {
-            const count = cmd.count ?? 2000;
-            for (let i = 0; i < count; i++) {
-                ctx.fillStyle = cmd.color ?? "#000";
+            // 軽いノイズ
+            ctx.filter = "none";
+            ctx.globalAlpha = alpha * 0.04;
+            ctx.fillStyle = color;
+            for (let i = 0; i < 1500; i++) {
                 ctx.fillRect(rand(0, W), rand(0, H), 1, 1);
             }
             break;
         }
 
+        // 有機的な形：不規則なベジェ曲線の塊
+        case "organic_form": {
+            ctx.beginPath();
+            ctx.moveTo(cx + rand(-size*0.3, size*0.3), cy + rand(-size*0.3, size*0.3));
+            for (let i = 0; i < 6; i++) {
+                ctx.bezierCurveTo(
+                    cx + rand(-size, size), cy + rand(-size, size),
+                    cx + rand(-size, size), cy + rand(-size, size),
+                    cx + rand(-size*0.5, size*0.5), cy + rand(-size*0.5, size*0.5)
+                );
+            }
+            ctx.closePath();
+            ctx.fillStyle = color;
+            ctx.fill();
+
+            if (color2 !== color) {
+                ctx.globalAlpha = alpha * 0.5;
+                ctx.filter = `blur(${blur * 1.5}px)`;
+                ctx.fillStyle = color2;
+                ctx.fill();
+            }
+            break;
+        }
+
+        // 幾何学的な痕跡：直線・折れ線・鋭い動き
+        case "geometric_trace": {
+            ctx.strokeStyle = color;
+            ctx.lineWidth   = moveMode === 2 ? rand(2, 6) : rand(1, 3);
+            ctx.filter = blur > 0 ? `blur(${Math.min(blur * 0.3, 4)}px)` : "none";
+
+            const count = moveMode === 2 ? 8 : 5;
+            for (let i = 0; i < count; i++) {
+                ctx.beginPath();
+                const sx = cx + rand(-size, size);
+                const sy = cy + rand(-size, size);
+                ctx.moveTo(sx, sy);
+                if (moveMode === 2) {
+                    // 鋭い直線
+                    ctx.lineTo(cx + rand(-size*0.5, size*0.5), cy + rand(-size*0.5, size*0.5));
+                } else {
+                    // ベジェ
+                    ctx.bezierCurveTo(
+                        rand(0, W), rand(0, H),
+                        rand(0, W), rand(0, H),
+                        cx + rand(-size*0.5, size*0.5), cy + rand(-size*0.5, size*0.5)
+                    );
+                }
+                ctx.strokeStyle = i % 2 === 0 ? color : color2;
+                ctx.stroke();
+            }
+            break;
+        }
+
+        // エネルギーの流れ：渦・放射・波
+        case "energy_flow": {
+            ctx.strokeStyle = color;
+            ctx.lineWidth   = rand(1, 4);
+
+            if (moveMode === 1) {
+                // 渦
+                ctx.beginPath();
+                for (let t = 0; t < Math.PI * 8; t += 0.05) {
+                    const r = t * size / (Math.PI * 8);
+                    const x = cx + r * Math.cos(t);
+                    const y = cy + r * Math.sin(t);
+                    t < 0.05 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+                }
+                ctx.stroke();
+            } else if (moveMode === 3) {
+                // 拡散：放射状の波線
+                const rayCount = 12;
+                for (let i = 0; i < rayCount; i++) {
+                    const angle = (Math.PI * 2 / rayCount) * i;
+                    ctx.beginPath();
+                    for (let r = 0; r <= size; r += 4) {
+                        const wave = Math.sin(r * 0.05) * 8;
+                        const x = cx + (r + wave) * Math.cos(angle);
+                        const y = cy + (r + wave) * Math.sin(angle);
+                        r === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+                    }
+                    ctx.strokeStyle = i % 2 === 0 ? color : color2;
+                    ctx.stroke();
+                }
+            } else {
+                // 波
+                const baseY = cy;
+                const amp   = size * 0.15;
+                ctx.beginPath();
+                for (let x = 0; x <= W; x++) {
+                    const y = baseY + Math.sin(x * 0.015) * amp;
+                    x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+                }
+                ctx.stroke();
+            }
+            break;
+        }
+
+        // 焦点：鮮明な輝点・強調マーク
+        case "point_of_focus": {
+            ctx.filter = "none";
+            // 外側のグロー
+            ctx.globalAlpha = alpha * 0.3;
+            ctx.filter = `blur(${size * 0.15}px)`;
+            ctx.beginPath();
+            ctx.fillStyle = color;
+            ctx.arc(cx, cy, size * 0.3, 0, Math.PI * 2);
+            ctx.fill();
+
+            // 中心の輝点
+            ctx.filter = "none";
+            ctx.globalAlpha = Math.min(alpha * 1.5, 1);
+            ctx.beginPath();
+            ctx.fillStyle = color2 !== color ? color2 : lighten(color, 60);
+            ctx.arc(cx, cy, size * 0.06, 0, Math.PI * 2);
+            ctx.fill();
+
+            // 十字ハイライト
+            ctx.globalAlpha = alpha * 0.5;
+            ctx.strokeStyle = color2 !== color ? color2 : lighten(color, 40);
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(cx - size * 0.25, cy);
+            ctx.lineTo(cx + size * 0.25, cy);
+            ctx.moveTo(cx, cy - size * 0.25);
+            ctx.lineTo(cx, cy + size * 0.25);
+            ctx.stroke();
+            break;
+        }
+
+        // 未知タイプはランダムな円でフォールバック
+        default: {
+            ctx.beginPath();
+            ctx.fillStyle = color;
+            ctx.arc(cx, cy, size * 0.3, 0, Math.PI * 2);
+            ctx.fill();
+            break;
+        }
     }
 
     ctx.restore();
-
 }
 
 // ======================================
@@ -212,17 +276,37 @@ canvas.style.transform = "scale(0.92)";
 
         const ai = await fetchAIParams(memories, conversationHistory);
 
-        // 背景（放射グラデーション）
-        const bgColor = ai.background ?? "#EEF5FF";
+        // ─── 背景色の決定 ───
+        // 新形式: artisticVision.colorPalette[0] を背景に使う
+        // 旧形式フォールバック: ai.background
+        let bgColor = "#0d0d1a";
+        if (ai.artisticVision?.colorPalette?.length > 0) {
+            bgColor = ai.artisticVision.colorPalette[0].color ?? bgColor;
+        } else if (ai.background) {
+            bgColor = ai.background;
+        }
+
         const grad = ctx.createRadialGradient(W*0.5, H*0.4, 0, W*0.5, H*0.5, W*0.75);
-        grad.addColorStop(0, lighten(bgColor, 30));
+        grad.addColorStop(0, lighten(bgColor, 20));
         grad.addColorStop(0.6, bgColor);
-        grad.addColorStop(1, darken(bgColor, 30));
+        grad.addColorStop(1, darken(bgColor, 20));
         ctx.fillStyle = grad;
         ctx.fillRect(0, 0, W, H);
 
-        // 全コマンドを実行
-        if (Array.isArray(ai.commands)) {
+        // ─── 要素の描画 ───
+        // 新形式: elements 配列をレンダリング
+        // 旧形式フォールバック: commands 配列
+        if (Array.isArray(ai.elements) && ai.elements.length > 0) {
+            // depth順（奥→手前）に並べ替え
+            const depthOrder = { "奥": 0, "中": 1, "手前": 2 };
+            const sorted = [...ai.elements].sort((a, b) => {
+                const da = depthOrder[a.visuals?.depth] ?? 1;
+                const db = depthOrder[b.visuals?.depth] ?? 1;
+                return da - db;
+            });
+            sorted.forEach(el => renderElement(el));
+        } else if (Array.isArray(ai.commands)) {
+            // 旧形式フォールバック
             ai.commands.forEach(cmd => execCommand(cmd));
         }
 
