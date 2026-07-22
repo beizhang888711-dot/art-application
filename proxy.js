@@ -105,7 +105,9 @@ app.post("/proxy/generate-params", async (req, res) => {
                 messages: [
                     { role: "system", content: systemPrompt },
                     ...(conversationHistory || []),
-                    { role: "user", content: `上記の会話と記憶をもとに、抽象画のアートパラメータを生成してください。キーワード補足: ${memories.join("、")}` }
+                    { role: "user", content: adjustInstruction
+                        ? `上記の会話と記憶をもとに、抽象画のアートパラメータを生成してください。キーワード補足: ${memories.join("、")}\n\n【調整指示】次の点を必ず反映してください：${adjustInstruction}`
+                        : `上記の会話と記憶をもとに、抽象画のアートパラメータを生成してください。キーワード補足: ${memories.join("、")}` }
                 ]
             })
         });

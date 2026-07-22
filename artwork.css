@@ -717,6 +717,21 @@ body{
 
 }
 
+/* 更新ボタン無効時 */
+.adjustActions .btn--primary:disabled{
+
+    background:#A0AEC0;
+
+    box-shadow:none;
+
+    cursor:default;
+
+    transform:none;
+
+    opacity:0.7;
+
+}
+
 /* 実行・キャンセルボタン行 */
 .adjustActions{
 

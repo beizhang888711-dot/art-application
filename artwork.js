@@ -373,54 +373,28 @@ const applyAdjustBtn = document.getElementById("applyAdjustBtn");
 const adjustInput    = document.getElementById("adjustInput");
 const adjustChips    = document.getElementById("adjustChips");
 
-// チップの選択トグル
-adjustChips.addEventListener("click", e => {
-    const chip = e.target.closest(".chip");
-    if (!chip) return;
-    chip.classList.toggle("chip--selected");
-});
+// ── ボタンの有効/無効をリアルタイム更新 ──
+function syncApplyBtn() {
+    const hasChip = adjustChips.querySelector(".chip--selected") !== null;
+    const hasFree = adjustInput.value.trim().length > 0;
+    applyAdjustBtn.disabled = !(hasChip || hasFree);
+}
 
-// 「AIと一緒に仕上げる」→ パネルを開く
-openAdjustBtn.addEventListener("click", () => {
-    adjustPanel.style.display = "flex";
-    adjustPanel.scrollIntoView({ behavior: "smooth", block: "start" });
-});
+// ── 再生成コア（チップ選択・自由入力Enterどちらからも呼ぶ） ──
+async function runAdjust(instruction) {
 
-// キャンセル
-cancelAdjustBtn.addEventListener("click", () => {
-    adjustPanel.style.display = "none";
-    // チップをリセット
-    adjustChips.querySelectorAll(".chip--selected").forEach(c => c.classList.remove("chip--selected"));
-    adjustInput.value = "";
-});
-
-// 「この指示で作品を更新する」
-applyAdjustBtn.addEventListener("click", async () => {
-
-    // 選択チップ＋自由入力をまとめて1つの指示文に
-    const chips = [...adjustChips.querySelectorAll(".chip--selected")].map(c => c.dataset.value);
-    const free  = adjustInput.value.trim();
-    const parts = [...chips, ...(free ? [free] : [])];
-
-    if (parts.length === 0) {
-        adjustInput.focus();
-        adjustInput.placeholder = "チップを選ぶか、言葉で指示を入力してください";
-        return;
-    }
-
-    const instruction = parts.join("、");
-
-    // パネルを閉じてローディング表示
+    // パネルを閉じてリセット
     adjustPanel.style.display = "none";
     adjustChips.querySelectorAll(".chip--selected").forEach(c => c.classList.remove("chip--selected"));
     adjustInput.value = "";
+    applyAdjustBtn.disabled = true;
 
-    // Canvas リセット
+    // Canvas リセット＆ローディング
     ctx.clearRect(0, 0, W, H);
     aiLoading.style.display = "flex";
+    canvas.style.display    = "block";
     canvas.style.opacity    = "0";
     canvas.style.transform  = "scale(0.92)";
-    canvas.style.display    = "block";
 
     // 保存ボタンをリセット
     const saveBtn = document.getElementById("saveGalleryBtn");
@@ -476,6 +450,47 @@ applyAdjustBtn.addEventListener("click", async () => {
             canvas.style.transform  = "scale(1)";
         }, 80);
     }
+}
+
+// ── チップをクリックしたら選択トグル → ボタン状態を更新 ──
+adjustChips.addEventListener("click", e => {
+    const chip = e.target.closest(".chip");
+    if (!chip) return;
+    chip.classList.toggle("chip--selected");
+    syncApplyBtn();
+});
+
+// ── 自由入力を打つたびにボタン状態を更新、Enterで即実行 ──
+adjustInput.addEventListener("input", syncApplyBtn);
+adjustInput.addEventListener("keydown", e => {
+    if (e.key !== "Enter") return;
+    const free = adjustInput.value.trim();
+    if (!free) return;
+    const chips = [...adjustChips.querySelectorAll(".chip--selected")].map(c => c.dataset.value);
+    runAdjust([...chips, free].join("、"));
+});
+
+// 「AIと一緒に仕上げる」→ パネルを開く
+openAdjustBtn.addEventListener("click", () => {
+    applyAdjustBtn.disabled = true; // 初期は無効
+    adjustPanel.style.display = "flex";
+    adjustPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+});
+
+// キャンセル
+cancelAdjustBtn.addEventListener("click", () => {
+    adjustPanel.style.display = "none";
+    adjustChips.querySelectorAll(".chip--selected").forEach(c => c.classList.remove("chip--selected"));
+    adjustInput.value = "";
+});
+
+// 「この指示で作品を更新する」ボタン
+applyAdjustBtn.addEventListener("click", () => {
+    const chips = [...adjustChips.querySelectorAll(".chip--selected")].map(c => c.dataset.value);
+    const free  = adjustInput.value.trim();
+    const parts = [...chips, ...(free ? [free] : [])];
+    if (parts.length === 0) return;
+    runAdjust(parts.join("、"));
 });
 
 // ======================================
