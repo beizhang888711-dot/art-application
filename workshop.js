@@ -4,7 +4,7 @@
 // ======================================
 
 const PROXY_ENDPOINT = "/api";
-const TOTAL_STEPS    = 4; // 質問数
+const TOTAL_STEPS    = 6; // 質問数（ステップ1×2問、ステップ2×2問、ステップ3×2問）
 
 // ======================================
 // DOM
@@ -17,6 +17,7 @@ const progressFill = document.querySelector(".progressFill");
 const progressValue= document.getElementById("progressValue");
 const emotionBars  = document.querySelectorAll(".fill");
 const artwork      = document.querySelector(".previewArtwork");
+const phaseLabel   = document.getElementById("phaseLabel");
 
 // ======================================
 // 状態
@@ -72,8 +73,15 @@ function removeTyping() {
 
 function updateProgress() {
     const percent = Math.min(Math.round((step / TOTAL_STEPS) * 100), 100);
-    progressFill.style.width    = percent + "%";
-    progressValue.textContent   = percent + "%";
+    progressFill.style.width  = percent + "%";
+    progressValue.textContent = percent + "%";
+
+    // フェーズラベル更新
+    if (phaseLabel) {
+        if (step <= 2)      phaseLabel.textContent = "ステップ 1 ／ 感情を見つける";
+        else if (step <= 4) phaseLabel.textContent = "ステップ 2 ／ 背景を言葉にする";
+        else                phaseLabel.textContent = "ステップ 3 ／ 表現を自分で決める";
+    }
 }
 
 function updateEmotion() {
