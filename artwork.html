@@ -45,7 +45,7 @@
         <!-- AIローディング表示 -->
         <div id="aiLoading" class="aiLoading">
             <div class="aiLoadingSpinner"></div>
-            <p>AIが画像を生成しています...</p>
+            <p id="aiLoadingMsg">あなたの言葉を色に変換しています</p>
         </div>
 
         <!-- AI生成画像（成功時に表示） -->
@@ -230,6 +230,155 @@
 
 
 </main>
+
+
+<!-- ================================= -->
+<!-- 制作意図入力モーダル -->
+<!-- ================================= -->
+<div id="intentModal" class="intentModal" style="display:none;" role="dialog" aria-modal="true">
+    <div class="intentModal__card">
+
+        <h3 class="intentModal__title">作品を保存する前に</h3>
+        <p class="intentModal__desc">任意です。あとからギャラリーで振り返るときに役立ちます。</p>
+
+        <div class="intentModal__fields">
+
+            <div class="intentModal__field">
+                <label for="intentTitle">作品タイトル</label>
+                <input type="text" id="intentTitle" placeholder="例：あの夏の終わりに">
+            </div>
+
+            <div class="intentModal__field">
+                <label for="intentEmotion">表したかった感情</label>
+                <input type="text" id="intentEmotion" placeholder="例：悲しみの中にある静けさ">
+            </div>
+
+            <div class="intentModal__field">
+                <label for="intentFocus">一番こだわったところ</label>
+                <input type="text" id="intentFocus" placeholder="例：青の濃淡のグラデーション">
+            </div>
+
+            <div class="intentModal__field">
+                <label for="intentAdopted">AIの提案から採用したところ</label>
+                <input type="text" id="intentAdopted" placeholder="例：中央の光の表現">
+            </div>
+
+            <div class="intentModal__field">
+                <label for="intentChanged">自分で変更したところ</label>
+                <input type="text" id="intentChanged" placeholder="例：もっと暗くするよう指示した">
+            </div>
+
+            <div class="intentModal__field">
+                <label for="intentNow">作品を見た今の気持ち</label>
+                <input type="text" id="intentNow" placeholder="例：思ったより穏やかな仕上がりになった">
+            </div>
+
+        </div>
+
+        <div class="intentModal__actions">
+            <button id="intentSaveBtn" class="btn btn--primary">保存する</button>
+            <button id="intentSkipBtn" class="btn btn--text">スキップして保存</button>
+        </div>
+
+    </div>
+</div>
+
+
+<!-- ================================= -->
+<!-- 制作後アンケートモーダル -->
+<!-- ================================= -->
+<div id="surveyModal" class="surveyModal" style="display:none;" role="dialog" aria-modal="true">
+    <div class="surveyModal__card">
+
+        <p class="surveyModal__tag">制作後アンケート</p>
+        <h3 class="surveyModal__title">作品づくりを振り返ってください</h3>
+        <p class="surveyModal__desc">5段階で評価してください（1：そう思わない ／ 5：とてもそう思う）</p>
+
+        <div class="surveyModal__questions" id="surveyQuestions">
+            <div class="surveyQ" data-key="expressed">
+                <p class="surveyQ__text">自分の気持ちを表現できたと感じますか？</p>
+                <div class="surveyQ__scale">
+                    <span class="scale-label">1</span>
+                    <div class="scale-btns">
+                        <button class="scale-btn" data-val="1">1</button>
+                        <button class="scale-btn" data-val="2">2</button>
+                        <button class="scale-btn" data-val="3">3</button>
+                        <button class="scale-btn" data-val="4">4</button>
+                        <button class="scale-btn" data-val="5">5</button>
+                    </div>
+                    <span class="scale-label">5</span>
+                </div>
+            </div>
+            <div class="surveyQ" data-key="attachment">
+                <p class="surveyQ__text">この作品に愛着を感じますか？</p>
+                <div class="surveyQ__scale">
+                    <span class="scale-label">1</span>
+                    <div class="scale-btns">
+                        <button class="scale-btn" data-val="1">1</button>
+                        <button class="scale-btn" data-val="2">2</button>
+                        <button class="scale-btn" data-val="3">3</button>
+                        <button class="scale-btn" data-val="4">4</button>
+                        <button class="scale-btn" data-val="5">5</button>
+                    </div>
+                    <span class="scale-label">5</span>
+                </div>
+            </div>
+            <div class="surveyQ" data-key="involvement">
+                <p class="surveyQ__text">自分が作品づくりに関わったと感じますか？</p>
+                <div class="surveyQ__scale">
+                    <span class="scale-label">1</span>
+                    <div class="scale-btns">
+                        <button class="scale-btn" data-val="1">1</button>
+                        <button class="scale-btn" data-val="2">2</button>
+                        <button class="scale-btn" data-val="3">3</button>
+                        <button class="scale-btn" data-val="4">4</button>
+                        <button class="scale-btn" data-val="5">5</button>
+                    </div>
+                    <span class="scale-label">5</span>
+                </div>
+            </div>
+            <div class="surveyQ" data-key="aiHelped">
+                <p class="surveyQ__text">AIの質問は考えを深める助けになりましたか？</p>
+                <div class="surveyQ__scale">
+                    <span class="scale-label">1</span>
+                    <div class="scale-btns">
+                        <button class="scale-btn" data-val="1">1</button>
+                        <button class="scale-btn" data-val="2">2</button>
+                        <button class="scale-btn" data-val="3">3</button>
+                        <button class="scale-btn" data-val="4">4</button>
+                        <button class="scale-btn" data-val="5">5</button>
+                    </div>
+                    <span class="scale-label">5</span>
+                </div>
+            </div>
+            <div class="surveyQ" data-key="again">
+                <p class="surveyQ__text">もう一度、別の作品を作ってみたいですか？</p>
+                <div class="surveyQ__scale">
+                    <span class="scale-label">1</span>
+                    <div class="scale-btns">
+                        <button class="scale-btn" data-val="1">1</button>
+                        <button class="scale-btn" data-val="2">2</button>
+                        <button class="scale-btn" data-val="3">3</button>
+                        <button class="scale-btn" data-val="4">4</button>
+                        <button class="scale-btn" data-val="5">5</button>
+                    </div>
+                    <span class="scale-label">5</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="intentModal__field" style="margin-top:8px;">
+            <label for="surveyFreeText">自由記述（任意）</label>
+            <textarea id="surveyFreeText" rows="3" placeholder="感想・気づいたこと・改善してほしいことなど"></textarea>
+        </div>
+
+        <div class="intentModal__actions">
+            <button id="surveySubmitBtn" class="btn btn--primary">回答を送信する</button>
+            <button id="surveySkipBtn" class="btn btn--text">スキップ</button>
+        </div>
+
+    </div>
+</div>
 
 
 <script src="artwork.js"></script>

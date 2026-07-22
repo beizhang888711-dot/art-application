@@ -744,3 +744,267 @@ body{
     flex-wrap:wrap;
 
 }
+
+/* ==========================================
+   制作意図モーダル / アンケートモーダル 共通
+========================================== */
+
+.intentModal,
+.surveyModal{
+
+    position:fixed;
+
+    inset:0;
+
+    background:rgba(15,20,40,0.55);
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    z-index:1000;
+
+    padding:24px;
+
+    overflow-y:auto;
+
+}
+
+.intentModal__card,
+.surveyModal__card{
+
+    background:#fff;
+
+    border-radius:24px;
+
+    padding:36px 40px;
+
+    max-width:520px;
+
+    width:100%;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:18px;
+
+    max-height:90vh;
+
+    overflow-y:auto;
+
+}
+
+.intentModal__title,
+.surveyModal__title{
+
+    font-size:19px;
+
+    font-weight:700;
+
+    color:#1f2328;
+
+}
+
+.intentModal__desc,
+.surveyModal__desc{
+
+    font-size:13px;
+
+    color:#57606a;
+
+}
+
+.intentModal__fields{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:14px;
+
+}
+
+.intentModal__field{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:5px;
+
+}
+
+.intentModal__field label{
+
+    font-size:12px;
+
+    font-weight:600;
+
+    color:#444;
+
+}
+
+.intentModal__field input,
+.intentModal__field textarea{
+
+    padding:10px 14px;
+
+    border:1.5px solid #c5d0f0;
+
+    border-radius:10px;
+
+    font-size:14px;
+
+    color:#1f2328;
+
+    outline:none;
+
+    font-family:inherit;
+
+    resize:vertical;
+
+    transition:border-color .15s;
+
+}
+
+.intentModal__field input:focus,
+.intentModal__field textarea:focus{
+
+    border-color:#6c8cff;
+
+}
+
+.intentModal__actions{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:14px;
+
+    flex-wrap:wrap;
+
+}
+
+/* ==========================================
+   アンケート
+========================================== */
+
+.surveyModal__tag{
+
+    font-size:11px;
+
+    font-weight:700;
+
+    letter-spacing:.08em;
+
+    color:#6c8cff;
+
+    text-transform:uppercase;
+
+}
+
+.surveyModal__questions{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:20px;
+
+}
+
+.surveyQ__text{
+
+    font-size:14px;
+
+    color:#1f2328;
+
+    margin-bottom:8px;
+
+    line-height:1.6;
+
+}
+
+.surveyQ__scale{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+
+}
+
+.scale-label{
+
+    font-size:11px;
+
+    color:#8a9099;
+
+    min-width:12px;
+
+}
+
+.scale-btns{
+
+    display:flex;
+
+    gap:6px;
+
+}
+
+.scale-btn{
+
+    width:38px;
+
+    height:38px;
+
+    border:1.5px solid #c5d0f0;
+
+    border-radius:50%;
+
+    background:#fff;
+
+    color:#3d5a99;
+
+    font-size:14px;
+
+    font-weight:600;
+
+    cursor:pointer;
+
+    transition:background .15s, border-color .15s, color .15s;
+
+}
+
+.scale-btn:hover{
+
+    background:#f0f4ff;
+
+    border-color:#6c8cff;
+
+}
+
+.scale-btn--selected{
+
+    background:#6c8cff;
+
+    border-color:#6c8cff;
+
+    color:#fff;
+
+}
+
+/* ==========================================
+   ローディングメッセージ フェードトランジション
+========================================== */
+
+#aiLoadingMsg{
+
+    transition:opacity .3s;
+
+}

@@ -266,12 +266,44 @@ function renderElement(el) {
 // ローディング・AI呼び出し
 // ======================================
 
-const aiLoading = document.getElementById("aiLoading");
+const aiLoading    = document.getElementById("aiLoading");
+const aiLoadingMsg = document.getElementById("aiLoadingMsg");
+
+// ── ローディングメッセージ演出 ──
+const loadingMessages = [
+    "あなたの言葉を色に変換しています",
+    "感情の強さから線の表現を考えています",
+    "作品の構図を組み立てています",
+    "記憶の奥から色彩を引き出しています",
+    "もうすぐ、あなただけの作品が完成します"
+];
+let loadingMsgTimer = null;
+
+function startLoadingMessages() {
+    let i = 0;
+    if (aiLoadingMsg) aiLoadingMsg.textContent = loadingMessages[0];
+    loadingMsgTimer = setInterval(() => {
+        i = (i + 1) % loadingMessages.length;
+        if (aiLoadingMsg) {
+            aiLoadingMsg.style.opacity = "0";
+            setTimeout(() => {
+                aiLoadingMsg.textContent = loadingMessages[i];
+                aiLoadingMsg.style.opacity = "1";
+            }, 300);
+        }
+    }, 2500);
+}
+
+function stopLoadingMessages() {
+    clearInterval(loadingMsgTimer);
+}
 
 canvas.style.opacity   = "0";
 canvas.style.transform = "scale(0.92)";
 
 (async () => {
+
+    startLoadingMessages();
 
     try {
 
@@ -338,6 +370,7 @@ canvas.style.transform = "scale(0.92)";
 
     } finally {
 
+        stopLoadingMessages();
         aiLoading.style.display = "none";
         canvas.style.display    = "block";
 
@@ -392,6 +425,7 @@ async function runAdjust(instruction) {
 
     // Canvas リセット＆ローディング
     ctx.clearRect(0, 0, W, H);
+    startLoadingMessages();
     aiLoading.style.display = "flex";
     canvas.style.display    = "block";
     canvas.style.opacity    = "0";
@@ -444,6 +478,7 @@ async function runAdjust(instruction) {
     } catch (err) {
         console.warn("調整再生成失敗:", err);
     } finally {
+        stopLoadingMessages();
         aiLoading.style.display = "none";
         setTimeout(() => {
             canvas.style.transition = "1.2s";
@@ -495,32 +530,100 @@ applyAdjustBtn.addEventListener("click", () => {
 });
 
 // ======================================
-// ギャラリー保存
+// ギャラリー保存 → 制作意図モーダル → アンケートモーダル
 // ======================================
 
 const saveGalleryBtn = document.getElementById("saveGalleryBtn");
+const intentModal    = document.getElementById("intentModal");
+const surveyModal    = document.getElementById("surveyModal");
 
-if (saveGalleryBtn) {
-    saveGalleryBtn.onclick = () => {
-        const gallery = JSON.parse(localStorage.getItem("gallery")) || [];
-        const image   = canvas.toDataURL("image/png");
+// ── 実際にgalleryに保存する関数 ──
+function doSave(intent) {
+    const gallery = JSON.parse(localStorage.getItem("gallery")) || [];
+    const image   = canvas.toDataURL("image/png");
 
-        if (gallery.some(w => w.image === image)) {
-            alert("この作品はすでに保存されています。");
-            return;
-        }
+    if (gallery.some(w => w.image === image)) {
+        alert("この作品はすでに保存されています。");
+        return;
+    }
 
-        gallery.push({
-            title:      aiTitle,
-            image:      image,
-            reflection: aiReflection,
-            keywords:   memories,
-            createdAt:  new Date().toLocaleDateString("ja-JP")
+    gallery.push({
+        title:      intent.title || aiTitle,
+        image:      image,
+        reflection: aiReflection,
+        keywords:   memories,
+        createdAt:  new Date().toLocaleDateString("ja-JP"),
+        intent:     intent   // 制作意図データを一緒に保存
+    });
+
+    localStorage.setItem("gallery", JSON.stringify(gallery));
+    saveGalleryBtn.textContent = "✅ 保存しました";
+    saveGalleryBtn.disabled    = true;
+}
+
+// ── アンケートモーダルを開く ──
+function openSurvey() {
+    surveyModal.style.display = "flex";
+
+    // スケールボタンのトグル
+    surveyModal.querySelectorAll(".surveyQ").forEach(q => {
+        q.querySelectorAll(".scale-btn").forEach(btn => {
+            btn.addEventListener("click", () => {
+                q.querySelectorAll(".scale-btn").forEach(b => b.classList.remove("scale-btn--selected"));
+                btn.classList.add("scale-btn--selected");
+            });
         });
+    });
 
-        localStorage.setItem("gallery", JSON.stringify(gallery));
-        saveGalleryBtn.textContent = "✅ 保存しました";
-        saveGalleryBtn.disabled    = true;
-        alert("ギャラリーに保存しました！");
+    // 送信
+    document.getElementById("surveySubmitBtn").onclick = () => {
+        const answers = {};
+        surveyModal.querySelectorAll(".surveyQ").forEach(q => {
+            const key = q.dataset.key;
+            const sel = q.querySelector(".scale-btn--selected");
+            answers[key] = sel ? Number(sel.dataset.val) : null;
+        });
+        answers.freeText = document.getElementById("surveyFreeText").value.trim();
+        answers.savedAt  = new Date().toISOString();
+
+        const surveys = JSON.parse(localStorage.getItem("surveys")) || [];
+        surveys.push(answers);
+        localStorage.setItem("surveys", JSON.stringify(surveys));
+
+        surveyModal.style.display = "none";
+        alert("ご回答ありがとうございました。");
+    };
+
+    document.getElementById("surveySkipBtn").onclick = () => {
+        surveyModal.style.display = "none";
     };
 }
+
+// ── 「この作品を保存」クリック → 制作意図モーダルを開く ──
+if (saveGalleryBtn) {
+    saveGalleryBtn.onclick = () => {
+        intentModal.style.display = "flex";
+    };
+}
+
+// ── 制作意図モーダル：「保存する」──
+document.getElementById("intentSaveBtn").onclick = () => {
+    const intent = {
+        title:    document.getElementById("intentTitle").value.trim(),
+        emotion:  document.getElementById("intentEmotion").value.trim(),
+        focus:    document.getElementById("intentFocus").value.trim(),
+        adopted:  document.getElementById("intentAdopted").value.trim(),
+        changed:  document.getElementById("intentChanged").value.trim(),
+        now:      document.getElementById("intentNow").value.trim()
+    };
+    intentModal.style.display = "none";
+    doSave(intent);
+    openSurvey();
+};
+
+// ── 制作意図モーダル：「スキップして保存」──
+document.getElementById("intentSkipBtn").onclick = () => {
+    intentModal.style.display = "none";
+    doSave({ title: aiTitle });
+    openSurvey();
+};
