@@ -106,16 +106,49 @@ function finishWorkshop() {
     // 入力エリアを非表示
     document.querySelector(".inputArea").style.display = "none";
 
-    const btn = document.createElement("button");
-    btn.className   = "mainButton";
-    btn.style.cssText = "margin-top:30px; width:100%;";
-    btn.textContent = "作品を生成する →";
-    btn.onclick = () => {
-        localStorage.setItem("reflectionData", JSON.stringify(memories));
-        localStorage.setItem("conversationHistory", JSON.stringify(history));
+    // スタイル選択パネルを表示
+    const stylePanel  = document.getElementById("styleSelectPanel");
+    const styleGrid   = document.getElementById("styleGrid");
+    const generateBtn = document.getElementById("generateBtn");
+
+    stylePanel.style.display = "block";
+    stylePanel.scrollIntoView({ behavior: "smooth", block: "start" });
+
+    let selectedStyle = null;
+
+    // チップ選択
+    styleGrid.addEventListener("click", e => {
+        const chip = e.target.closest(".styleChip");
+        if (!chip) return;
+        styleGrid.querySelectorAll(".styleChip").forEach(c => c.classList.remove("styleChip--selected"));
+        chip.classList.add("styleChip--selected");
+        selectedStyle = chip.dataset.style;
+        generateBtn.disabled = false;
+        generateBtn.style.opacity = "1";
+    });
+
+    // 生成ボタン
+    generateBtn.onclick = () => {
+        if (!selectedStyle) return;
+
+        // ── 構造化データをワークショップの会話から抽出して保存 ──
+        // memories配列: [step1回答, step2回答, ..., step6回答]
+        const structured = {
+            emotion:        memories[0] || "",   // 感情の言葉
+            emotionStrength:memories[1] || "",   // 感情の強さ
+            background:     memories[2] || "",   // 背景の出来事
+            scene:          memories[3] || "",   // 風景・場面
+            colorImage:     memories[4] || "",   // 色のイメージ
+            lineForm:       memories[5] || "",   // 線や形の質感
+            style:          selectedStyle,
+            allAnswers:     memories
+        };
+
+        localStorage.setItem("reflectionData",       JSON.stringify(memories));
+        localStorage.setItem("conversationHistory",  JSON.stringify(history));
+        localStorage.setItem("artworkStructured",    JSON.stringify(structured));
         window.location.href = "artwork.html";
     };
-    document.querySelector(".previewPanel").appendChild(btn);
 }
 
 // ======================================

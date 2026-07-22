@@ -5,11 +5,11 @@
 
 const PROXY_ENDPOINT = "/api";
 
-async function fetchAIParams(memories, conversationHistory, adjustInstruction = null) {
+async function fetchAIParams(memories, conversationHistory, adjustInstruction = null, structured = null) {
     const response = await fetch(`${PROXY_ENDPOINT}/generate-params`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ memories, conversationHistory, adjustInstruction })
+        body: JSON.stringify({ memories, conversationHistory, adjustInstruction, structured })
     });
     if (!response.ok) throw new Error(`API error: ${response.status}`);
     return await response.json();
@@ -30,6 +30,7 @@ const H      = canvas.height;
 
 const memories             = JSON.parse(localStorage.getItem("reflectionData"))         || [];
 const conversationHistory  = JSON.parse(localStorage.getItem("conversationHistory"))    || [];
+const artworkStructured    = JSON.parse(localStorage.getItem("artworkStructured"))      || null;
 
 // キーワード表示
 const keywordContainer = document.getElementById("keywordContainer");
@@ -274,7 +275,7 @@ canvas.style.transform = "scale(0.92)";
 
     try {
 
-        const ai = await fetchAIParams(memories, conversationHistory);
+        const ai = await fetchAIParams(memories, conversationHistory, null, artworkStructured);
 
         // ─── 背景色の決定 ───
         // 新形式: artisticVision.colorPalette[0] を背景に使う

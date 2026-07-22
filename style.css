@@ -1278,3 +1278,97 @@ line-height:2;
     }
 
 }
+
+/* ==========================================
+   スタイル選択パネル（workshop）
+========================================== */
+
+.styleSelectPanel{
+
+    background:rgba(255,255,255,0.85);
+
+    border:1.5px solid #c5d0f0;
+
+    border-radius:20px;
+
+    padding:24px;
+
+    margin-bottom:20px;
+
+}
+
+.styleSelectPanel__title{
+
+    font-size:16px;
+
+    font-weight:700;
+
+    color:#1f2328;
+
+    margin-bottom:6px;
+
+}
+
+.styleSelectPanel__desc{
+
+    font-size:13px;
+
+    color:#57606a;
+
+    margin-bottom:16px;
+
+}
+
+.styleGrid{
+
+    display:flex;
+
+    flex-wrap:wrap;
+
+    gap:8px;
+
+}
+
+.styleChip{
+
+    padding:8px 16px;
+
+    border:1.5px solid #c5d0f0;
+
+    border-radius:999px;
+
+    background:#fff;
+
+    color:#3d5a99;
+
+    font-size:13px;
+
+    cursor:pointer;
+
+    transition:background .15s, border-color .15s, color .15s;
+
+}
+
+.styleChip:hover{
+
+    background:#f0f4ff;
+
+    border-color:#6c8cff;
+
+}
+
+.styleChip--selected{
+
+    background:#6c8cff;
+
+    border-color:#6c8cff;
+
+    color:#fff;
+
+}
+
+.styleChip--default{
+
+    border-style:dashed;
+
+}

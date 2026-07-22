@@ -96,6 +96,29 @@ RIGHT
 
 <div class="previewPanel">
 
+<!-- スタイル選択パネル（finishWorkshop時にJSで表示） -->
+<div id="styleSelectPanel" style="display:none;" class="styleSelectPanel">
+
+    <h3 class="styleSelectPanel__title">どんな表現にしますか？</h3>
+    <p class="styleSelectPanel__desc">作品のスタイルを選んでください。</p>
+
+    <div class="styleGrid" id="styleGrid">
+        <button class="styleChip" data-style="完全抽象">🎨 完全抽象</button>
+        <button class="styleChip" data-style="水彩画">💧 水彩画</button>
+        <button class="styleChip" data-style="水墨画">🖌 水墨画</button>
+        <button class="styleChip" data-style="油絵風">🖼 油絵風</button>
+        <button class="styleChip" data-style="コラージュ">✂️ コラージュ</button>
+        <button class="styleChip" data-style="線画">✏️ 線画</button>
+        <button class="styleChip" data-style="幾何学">🔷 幾何学</button>
+        <button class="styleChip styleChip--default" data-style="AIに任せる">✨ AIに任せる</button>
+    </div>
+
+    <button id="generateBtn" class="mainButton" style="margin-top:20px; width:100%; opacity:0.5;" disabled>
+        作品を生成する →
+    </button>
+
+</div>
+
 <div class="previewCard">
 
 <h2>
