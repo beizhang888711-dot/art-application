@@ -436,7 +436,7 @@ async function runAdjust(instruction) {
     if (saveBtn) { saveBtn.textContent = "この作品を保存"; saveBtn.disabled = false; }
 
     try {
-        const ai = await fetchAIParams(memories, conversationHistory, instruction);
+        const ai = await fetchAIParams(memories, conversationHistory, instruction, artworkStructured);
 
         // 背景
         let bgColor = "#0d0d1a";
@@ -476,7 +476,13 @@ async function runAdjust(instruction) {
         }
 
     } catch (err) {
-        console.warn("調整再生成失敗:", err);
+        console.error("調整再生成失敗:", err);
+        // フォールバック：グラデーション背景
+        const grad = ctx.createLinearGradient(0, 0, W, H);
+        grad.addColorStop(0, "#1a1a2e");
+        grad.addColorStop(1, "#16213e");
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, W, H);
     } finally {
         stopLoadingMessages();
         aiLoading.style.display = "none";
