@@ -95,10 +95,13 @@ function updateArtworkPreview() {
 }
 
 function finishWorkshop() {
+    // 入力エリアを非表示
+    document.querySelector(".inputArea").style.display = "none";
+
     const btn = document.createElement("button");
     btn.className   = "mainButton";
-    btn.style.marginTop = "30px";
-    btn.textContent = "作品を生成する";
+    btn.style.cssText = "margin-top:30px; width:100%;";
+    btn.textContent = "作品を生成する →";
     btn.onclick = () => {
         localStorage.setItem("reflectionData", JSON.stringify(memories));
         localStorage.setItem("conversationHistory", JSON.stringify(history));
@@ -120,6 +123,23 @@ async function fetchNextQuestion() {
             history:    history,
             step:       step,
             totalSteps: TOTAL_STEPS
+        })
+    });
+    if (!response.ok) throw new Error(`chat API error: ${response.status}`);
+    const data = await response.json();
+    return data.question;
+}
+
+async function fetchClosingMessage() {
+    const response = await fetch(`${PROXY_ENDPOINT}/chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            theme:      selectedTheme,
+            history:    history,
+            step:       TOTAL_STEPS,
+            totalSteps: TOTAL_STEPS,
+            isClosing:  true
         })
     });
     if (!response.ok) throw new Error(`chat API error: ${response.status}`);
@@ -176,22 +196,20 @@ async function send() {
 
     } else {
 
-        // 最終ステップ
+        // 最終ステップ：締めの言葉（質問ではなく結びのメッセージ）
         showTyping();
         try {
-            const closing = await fetchNextQuestion();
+            const closing = await fetchClosingMessage();
             removeTyping();
             history.push({ role: "assistant", content: closing });
             addMessage(closing, "ai");
         } catch {
             removeTyping();
-            addMessage("ありがとうございます。あなた自身の物語が十分に集まりました。", "ai");
+            addMessage("たくさん話してくれてありがとうございます。あなたの言葉が、世界にひとつだけの作品へと変わります。", "ai");
         }
 
         updateProgress();
         finishWorkshop();
-        input.disabled          = true;
-        sendButton.style.display = "none";
 
     }
 }

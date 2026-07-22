@@ -128,9 +128,21 @@ app.post("/proxy/generate-params", async (req, res) => {
 
 app.post("/proxy/chat", async (req, res) => {
 
-    const { theme, history, step, totalSteps } = req.body;
+    const { theme, history, step, totalSteps, isClosing } = req.body;
 
-    const systemPrompt = `あなたはアートセラピストのAIです。
+    // 締めの言葉モード：質問ではなく結びのメッセージを生成
+    const systemPrompt = isClosing
+        ? `あなたはアートセラピストのAIです。
+ユーザーがテーマ「${theme}」について全ての質問に答え終わりました。
+これまでの会話を振り返り、感謝と共感を込めた締めの言葉を生成してください。
+
+ルール：
+- 質問は一切含めない（疑問符「？」を使わない）
+- 2〜3文の温かく詩的な結びの言葉にする
+- 日本語で回答
+- ユーザーの回答内容に具体的に触れて、個人的なメッセージにする
+- 最後に「作品の生成へ進んでください」のような一言を添える`
+        : `あなたはアートセラピストのAIです。
 ユーザーが選んだテーマ「${theme}」をもとに、感情や記憶を深掘りする質問を1つだけ生成してください。
 ユーザーのこれまでの回答を踏まえて、共感・深堀り・新しい視点を引き出す質問にしてください。
 
@@ -138,8 +150,7 @@ app.post("/proxy/chat", async (req, res) => {
 - 質問は1〜2文で簡潔に
 - 日本語で回答
 - 質問文のみ返す（説明・前置き・番号不要）
-- ${step === 1 ? "最初の質問なので、テーマに沿った導入的な質問にする" : ""}
-- ${step === totalSteps ? "最後の質問なので、感情を締めくくる詩的な問いかけにする" : ""}`;
+- ${step === 1 ? "最初の質問なので、テーマに沿った導入的な質問にする" : ""}`;
 
     const messages = [
         { role: "system", content: systemPrompt },
