@@ -144,7 +144,8 @@ async function fetchClosingMessage() {
     });
     if (!response.ok) throw new Error(`chat API error: ${response.status}`);
     const data = await response.json();
-    return data.question;
+    // AIが疑問符を返してしまった場合に後処理で除去
+    return data.question.replace(/[？?]/g, "。").replace(/。。/g, "。").trim();
 }
 
 // ======================================
