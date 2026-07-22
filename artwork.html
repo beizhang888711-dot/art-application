@@ -169,15 +169,9 @@
         <div class="buttonGroup">
 
             <button
-                class="btn btn--secondary"
-                onclick="window.location.href='workshop.html'">
-                作品を調整する
-            </button>
-
-            <button
-                class="btn btn--secondary"
-                onclick="location.reload()">
-                別の作品を生成
+                id="openAdjustBtn"
+                class="btn btn--secondary">
+                AIと一緒に仕上げる
             </button>
 
         </div>
@@ -188,6 +182,49 @@
             onclick="window.location.href='gallery.html'">
             ギャラリーへ戻る
         </button>
+
+    </section>
+
+
+    <!-- ================================= -->
+    <!-- 調整パネル（初期非表示） -->
+    <!-- ================================= -->
+
+    <section id="adjustPanel" class="adjustPanel" style="display:none;">
+
+        <h3 class="adjustPanel__title">作品のどこを変えたいですか？</h3>
+
+        <!-- チップ選択 -->
+        <div class="adjustChips" id="adjustChips">
+            <button class="chip" data-value="色を鮮やかにしたい">色を鮮やかにしたい</button>
+            <button class="chip" data-value="もっと暗くしたい">もっと暗くしたい</button>
+            <button class="chip" data-value="もっと明るくしたい">もっと明るくしたい</button>
+            <button class="chip" data-value="線を増やしたい">線を増やしたい</button>
+            <button class="chip" data-value="もっと抽象的にしたい">もっと抽象的にしたい</button>
+            <button class="chip" data-value="もっと具体的にしたい">もっと具体的にしたい</button>
+            <button class="chip" data-value="力強い印象にしたい">力強い印象にしたい</button>
+            <button class="chip" data-value="穏やかな印象にしたい">穏やかな印象にしたい</button>
+        </div>
+
+        <!-- 自由入力 -->
+        <div class="adjustFreeInput">
+            <label for="adjustInput">自分の言葉で指定する（任意）</label>
+            <input
+                type="text"
+                id="adjustInput"
+                placeholder="例：青を増やして、中央に光が集まるようにしたい"
+            >
+        </div>
+
+        <!-- 実行・キャンセル -->
+        <div class="adjustActions">
+            <button id="applyAdjustBtn" class="btn btn--primary">
+                この指示で作品を更新する
+            </button>
+            <button id="cancelAdjustBtn" class="btn btn--text">
+                キャンセル
+            </button>
+        </div>
 
     </section>
 

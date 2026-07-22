@@ -590,3 +590,142 @@ body{
     margin-top:4px;
 
 }
+
+/* ===========================================
+   調整パネル
+=========================================== */
+
+.adjustPanel{
+
+    margin-top:32px;
+
+    padding:32px;
+
+    background:rgba(255,255,255,0.72);
+
+    border:1.5px solid #c5d0f0;
+
+    border-radius:20px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:24px;
+
+}
+
+.adjustPanel__title{
+
+    font-size:17px;
+
+    font-weight:600;
+
+    color:#1f2328;
+
+}
+
+/* チップ */
+.adjustChips{
+
+    display:flex;
+
+    flex-wrap:wrap;
+
+    gap:10px;
+
+}
+
+.chip{
+
+    padding:9px 18px;
+
+    border:1.5px solid #c5d0f0;
+
+    border-radius:999px;
+
+    background:#fff;
+
+    color:#3d5a99;
+
+    font-size:14px;
+
+    cursor:pointer;
+
+    transition:background .15s, border-color .15s, color .15s;
+
+}
+
+.chip:hover{
+
+    background:#f0f4ff;
+
+    border-color:#6c8cff;
+
+}
+
+.chip.chip--selected{
+
+    background:#6c8cff;
+
+    border-color:#6c8cff;
+
+    color:#fff;
+
+}
+
+/* 自由入力 */
+.adjustFreeInput{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:8px;
+
+}
+
+.adjustFreeInput label{
+
+    font-size:13px;
+
+    color:#57606a;
+
+}
+
+.adjustFreeInput input{
+
+    padding:12px 16px;
+
+    border:1.5px solid #c5d0f0;
+
+    border-radius:12px;
+
+    font-size:14px;
+
+    color:#1f2328;
+
+    outline:none;
+
+    transition:border-color .15s;
+
+}
+
+.adjustFreeInput input:focus{
+
+    border-color:#6c8cff;
+
+}
+
+/* 実行・キャンセルボタン行 */
+.adjustActions{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:16px;
+
+    flex-wrap:wrap;
+
+}

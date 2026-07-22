@@ -32,7 +32,7 @@ app.use(express.static("."));
 // ======================================
 app.post("/proxy/generate-params", async (req, res) => {
 
-    const { memories, conversationHistory } = req.body;
+    const { memories, conversationHistory, adjustInstruction } = req.body;
 
     console.log("受信した memories:", memories);
 
@@ -86,7 +86,11 @@ app.post("/proxy/generate-params", async (req, res) => {
     // 5〜8個程度の要素で構成。感情の複雑さに応じて増減。
   ]
 }
-座標はすべて0〜1の比率で指定。`;
+座標はすべて0〜1の比率で指定。${adjustInstruction ? `
+
+【利用者からの調整指示】
+前回の作品に対して、次の変更を加えてください：「${adjustInstruction}」
+この指示を最優先で反映しつつ、全体の感情表現は維持してください。` : ""}`;
 
     // --- (ここから下は、レスポンスのパース部分を除き変更なし) ---
     try {

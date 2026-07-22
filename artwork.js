@@ -5,11 +5,11 @@
 
 const PROXY_ENDPOINT = "/api";
 
-async function fetchAIParams(memories, conversationHistory) {
+async function fetchAIParams(memories, conversationHistory, adjustInstruction = null) {
     const response = await fetch(`${PROXY_ENDPOINT}/generate-params`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ memories, conversationHistory })
+        body: JSON.stringify({ memories, conversationHistory, adjustInstruction })
     });
     if (!response.ok) throw new Error(`API error: ${response.status}`);
     return await response.json();
@@ -361,6 +361,122 @@ canvas.style.transform = "scale(0.92)";
     }
 
 })();
+
+// ======================================
+// 調整パネル制御
+// ======================================
+
+const openAdjustBtn  = document.getElementById("openAdjustBtn");
+const adjustPanel    = document.getElementById("adjustPanel");
+const cancelAdjustBtn= document.getElementById("cancelAdjustBtn");
+const applyAdjustBtn = document.getElementById("applyAdjustBtn");
+const adjustInput    = document.getElementById("adjustInput");
+const adjustChips    = document.getElementById("adjustChips");
+
+// チップの選択トグル
+adjustChips.addEventListener("click", e => {
+    const chip = e.target.closest(".chip");
+    if (!chip) return;
+    chip.classList.toggle("chip--selected");
+});
+
+// 「AIと一緒に仕上げる」→ パネルを開く
+openAdjustBtn.addEventListener("click", () => {
+    adjustPanel.style.display = "flex";
+    adjustPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+});
+
+// キャンセル
+cancelAdjustBtn.addEventListener("click", () => {
+    adjustPanel.style.display = "none";
+    // チップをリセット
+    adjustChips.querySelectorAll(".chip--selected").forEach(c => c.classList.remove("chip--selected"));
+    adjustInput.value = "";
+});
+
+// 「この指示で作品を更新する」
+applyAdjustBtn.addEventListener("click", async () => {
+
+    // 選択チップ＋自由入力をまとめて1つの指示文に
+    const chips = [...adjustChips.querySelectorAll(".chip--selected")].map(c => c.dataset.value);
+    const free  = adjustInput.value.trim();
+    const parts = [...chips, ...(free ? [free] : [])];
+
+    if (parts.length === 0) {
+        adjustInput.focus();
+        adjustInput.placeholder = "チップを選ぶか、言葉で指示を入力してください";
+        return;
+    }
+
+    const instruction = parts.join("、");
+
+    // パネルを閉じてローディング表示
+    adjustPanel.style.display = "none";
+    adjustChips.querySelectorAll(".chip--selected").forEach(c => c.classList.remove("chip--selected"));
+    adjustInput.value = "";
+
+    // Canvas リセット
+    ctx.clearRect(0, 0, W, H);
+    aiLoading.style.display = "flex";
+    canvas.style.opacity    = "0";
+    canvas.style.transform  = "scale(0.92)";
+    canvas.style.display    = "block";
+
+    // 保存ボタンをリセット
+    const saveBtn = document.getElementById("saveGalleryBtn");
+    if (saveBtn) { saveBtn.textContent = "この作品を保存"; saveBtn.disabled = false; }
+
+    try {
+        const ai = await fetchAIParams(memories, conversationHistory, instruction);
+
+        // 背景
+        let bgColor = "#0d0d1a";
+        if (ai.artisticVision?.colorPalette?.length > 0) {
+            bgColor = ai.artisticVision.colorPalette[0].color ?? bgColor;
+        } else if (ai.background) {
+            bgColor = ai.background;
+        }
+        const grad = ctx.createRadialGradient(W*0.5, H*0.4, 0, W*0.5, H*0.5, W*0.75);
+        grad.addColorStop(0, lighten(bgColor, 20));
+        grad.addColorStop(0.6, bgColor);
+        grad.addColorStop(1, darken(bgColor, 20));
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, W, H);
+
+        // 要素描画
+        if (Array.isArray(ai.elements) && ai.elements.length > 0) {
+            const depthOrder = { "奥": 0, "中": 1, "手前": 2 };
+            const sorted = [...ai.elements].sort((a, b) =>
+                (depthOrder[a.visuals?.depth] ?? 1) - (depthOrder[b.visuals?.depth] ?? 1)
+            );
+            sorted.forEach(el => renderElement(el));
+        } else if (Array.isArray(ai.commands)) {
+            ai.commands.forEach(cmd => execCommand(cmd));
+        }
+
+        // タイトル・リフレクション更新
+        if (ai.title) {
+            aiTitle = ai.title;
+            const el = document.getElementById("artTitle");
+            if (el) el.textContent = ai.title;
+        }
+        if (ai.reflection) {
+            aiReflection = ai.reflection;
+            const el = document.getElementById("reflectionText");
+            if (el) el.textContent = ai.reflection;
+        }
+
+    } catch (err) {
+        console.warn("調整再生成失敗:", err);
+    } finally {
+        aiLoading.style.display = "none";
+        setTimeout(() => {
+            canvas.style.transition = "1.2s";
+            canvas.style.opacity    = "1";
+            canvas.style.transform  = "scale(1)";
+        }, 80);
+    }
+});
 
 // ======================================
 // ギャラリー保存
