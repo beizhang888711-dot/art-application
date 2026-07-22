@@ -455,3 +455,89 @@ body{
 
 }
 
+
+/* ===========================================
+   著作権・利用上の注意事項
+=========================================== */
+
+.copyrightNotice{
+
+    margin-top:48px;
+
+    padding:28px 32px;
+
+    background:rgba(255,255,255,0.6);
+
+    border:1px solid #e5e7eb;
+
+    border-radius:16px;
+
+    font-size:13px;
+
+    color:#57606a;
+
+    line-height:1.75;
+
+}
+
+.copyrightNotice__title{
+
+    font-size:15px;
+
+    font-weight:600;
+
+    color:#1f2328;
+
+    margin-bottom:10px;
+
+}
+
+.copyrightNotice__body{
+
+    margin-bottom:14px;
+
+}
+
+.copyrightNotice__links{
+
+    display:flex;
+
+    flex-wrap:wrap;
+
+    gap:8px 20px;
+
+    list-style:none;
+
+    padding:0;
+
+    margin-bottom:14px;
+
+}
+
+.copyrightNotice__links a{
+
+    color:#3b82d4;
+
+    text-decoration:none;
+
+}
+
+.copyrightNotice__links a:hover{
+
+    text-decoration:underline;
+
+}
+
+.copyrightNotice__pending{
+
+    font-size:12px;
+
+    color:#8a9099;
+
+    border-top:1px solid #e5e7eb;
+
+    padding-top:12px;
+
+    margin-top:4px;
+
+}
