@@ -158,55 +158,38 @@
     <!-- ボタン -->
     <!-- ================================= -->
 
-<section class="buttonArea">
+    <section class="buttonArea">
 
-    <!-- 上段 -->
-    <div class="buttonRow">
-
-        <button id="saveGalleryBtn" class="mainButton">
-            💾 ギャラリーに保存
+        <!-- メイン：保存 -->
+        <button id="saveGalleryBtn" class="btn btn--primary">
+            この作品を保存
         </button>
 
-        <button id="downloadBtn" class="subButton">
-            ⬇ PNGダウンロード
-        </button>
+        <!-- サブ：調整・再生成 -->
+        <div class="buttonGroup">
 
-        <button id="communityBtn" class="mainButton">
-            🌍 コミュニティへ投稿
-        </button>
+            <button
+                class="btn btn--secondary"
+                onclick="window.location.href='workshop.html'">
+                作品を調整する
+            </button>
 
-    </div>
+            <button
+                class="btn btn--secondary"
+                onclick="location.reload()">
+                別の作品を生成
+            </button>
 
-    <!-- 下段 -->
-    <div class="buttonRow">
+        </div>
 
+        <!-- テキスト：ギャラリーへ -->
         <button
-            class="mainButton"
-            onclick="location.reload()">
-
-            🔄 もう一度生成する
-
+            class="btn btn--text"
+            onclick="window.location.href='gallery.html'">
+            ギャラリーへ戻る
         </button>
 
-        <button
-            class="subButton"
-            onclick="window.location.href='workshop.html'">
-
-            ← ワークショップへ戻る
-
-        </button>
-
-        <button
-            class="subButton"
-            onclick="window.location.href='index.html'">
-
-            🏠 ホームへ戻る
-
-        </button>
-
-    </div>
-
-</section>
+    </section>
 
 
 </main>

@@ -387,7 +387,7 @@ if (saveGalleryBtn) {
         });
 
         localStorage.setItem("gallery", JSON.stringify(gallery));
-        saveGalleryBtn.textContent = "✅ 保存済み";
+        saveGalleryBtn.textContent = "✅ 保存しました";
         saveGalleryBtn.disabled    = true;
         alert("ギャラリーに保存しました！");
     };
