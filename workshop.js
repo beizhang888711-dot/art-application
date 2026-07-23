@@ -74,7 +74,13 @@ function removeTyping() {
 function updateProgress() {
     const percent = Math.min(Math.round((step / TOTAL_STEPS) * 100), 100);
     progressFill.style.width  = percent + "%";
-    progressValue.textContent = percent + "%";
+    progressValue.innerHTML = percent === 100
+        ? `100% になりました 🎉 <strong>質問はこれで終了です！</strong><br><br>
+        あなたの言葉や感情から、
+        世界に一つだけの作品を生成する準備が整いました。<br><br>
+        右側のどんな表現にしますか？を選択し、「作品を生成する→」を押して、
+        あなただけのアートを完成させましょう。`
+        : percent + "%";
 
     // フェーズラベル更新
     if (phaseLabel) {
