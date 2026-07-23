@@ -17,9 +17,18 @@ module.exports = async function handler(req, res) {
     }
     if (!body || typeof body !== "object") body = {};
 
-    const { theme, history, step, totalSteps } = body;
+    const { theme, history, step, totalSteps, isClosing } = body;
 
-    const systemPrompt = `あなたはアートセラピストのAIです。
+    const systemPrompt = isClosing
+        ? `あなたはアートセラピストのAIです。
+ユーザーがテーマ「${theme}」についてたくさん話してくれました。
+ユーザーへの感謝と、これからアート作品として形になることへの期待を込めた、温かい締めの言葉を1〜2文で返してください。
+
+ルール：
+- 質問は一切含めない（疑問符「？」「?」を使わない）
+- 日本語で回答
+- メッセージ本文のみ返す（説明・前置き・番号不要）`
+        : `あなたはアートセラピストのAIです。
 ユーザーが選んだテーマ「${theme}」をもとに、感情や記憶を深掘りする質問を1つだけ生成してください。
 ユーザーのこれまでの回答を踏まえて、共感・深堀り・新しい視点を引き出す質問にしてください。
 
@@ -27,8 +36,7 @@ module.exports = async function handler(req, res) {
 - 質問は1〜2文で簡潔に
 - 日本語で回答
 - 質問文のみ返す（説明・前置き・番号不要）
-- ${step === 1 ? "最初の質問なので、テーマに沿った導入的な質問にする" : ""}
-- ${step === totalSteps ? "最後の質問なので、感情を締めくくる詩的な問いかけにする" : ""}`;
+- ${step === 1 ? "最初の質問なので、テーマに沿った導入的な質問にする" : ""}`;
 
     const messages = [
         { role: "system", content: systemPrompt },
