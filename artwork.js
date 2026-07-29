@@ -443,9 +443,12 @@ const adjustInput    = document.getElementById("adjustInput");
 const adjustChips    = document.getElementById("adjustChips");
 const adjustPreview     = document.getElementById("adjustPreview");
 const adjustPreviewText = document.getElementById("adjustPreviewText");
-const compareArea    = document.getElementById("compareArea");
-const beforeImg      = document.getElementById("beforeImg");
-const afterCanvas    = document.getElementById("afterCanvas");
+const compareArea       = document.getElementById("compareArea");
+const beforeImg         = document.getElementById("beforeImg");
+const beforeImgSide     = document.getElementById("beforeImgSide");
+const afterCanvas       = document.getElementById("afterCanvas");
+const afterCanvasSide   = document.getElementById("afterCanvasSide");
+const artSection        = document.getElementById("artSection");
 
 // ── 指示プレビューを更新 ──
 function updateAdjustPreview() {
@@ -551,12 +554,19 @@ async function runAdjust(instruction) {
         }
 
         // ── before/after 比較表示 ──
-        beforeImg.src = beforeDataUrl;
-        // after canvas にコピー
-        afterCanvas.width  = canvas.width;
-        afterCanvas.height = canvas.height;
-        afterCanvas.getContext("2d").drawImage(canvas, 0, 0);
+        beforeImg.src     = beforeDataUrl;
+        beforeImgSide.src = beforeDataUrl;
+
+        // after canvas（タブ用・並べて用）にコピー
+        [afterCanvas, afterCanvasSide].forEach(c => {
+            c.width  = canvas.width;
+            c.height = canvas.height;
+            c.getContext("2d").drawImage(canvas, 0, 0);
+        });
+
+        // 比較エリアを「変更後」タブで表示
         compareArea.style.display = "block";
+        activateCompareTab("after");
 
         showToast("✅ 作品を更新しました");
 
@@ -575,11 +585,29 @@ async function runAdjust(instruction) {
             canvas.style.transition = "1.2s";
             canvas.style.opacity    = "1";
             canvas.style.transform  = "scale(1)";
-            // 完了後にCanvasが見える位置へスクロール
-            setTimeout(() => canvas.scrollIntoView({ behavior: "smooth", block: "center" }), 200);
+            // 完了フラッシュ＆artSectionへスクロール
+            canvas.classList.add("canvas--updated");
+            setTimeout(() => canvas.classList.remove("canvas--updated"), 900);
+            setTimeout(() => artSection.scrollIntoView({ behavior: "smooth", block: "start" }), 150);
         }, 80);
     }
 }
+
+// ── 比較タブ切替 ──
+function activateCompareTab(tab) {
+    document.querySelectorAll(".compareTab").forEach(btn => {
+        btn.classList.toggle("compareTab--active", btn.dataset.tab === tab);
+    });
+    document.getElementById("pane-after").style.display  = tab === "after" ? "block" : "none";
+    document.getElementById("pane-before").style.display = tab === "before" ? "block" : "none";
+    document.getElementById("pane-side").style.display   = tab === "side"   ? "flex"  : "none";
+}
+
+compareArea.addEventListener("click", e => {
+    const btn = e.target.closest(".compareTab");
+    if (!btn) return;
+    activateCompareTab(btn.dataset.tab);
+});
 
 // ── チップをクリックしたら選択トグル → プレビュー更新 ──
 adjustChips.addEventListener("click", e => {
@@ -599,12 +627,13 @@ adjustInput.addEventListener("keydown", e => {
     runAdjust([...chips, free].join("、"));
 });
 
-// 「🎨 作品をさらに仕上げる」→ パネルを開いてスクロール
+// 「🎨 作品をさらに仕上げる」→ パネルを開いてCanvas直下にスクロール
 openAdjustBtn.addEventListener("click", () => {
     applyAdjustBtn.disabled = true;
     adjustPreview.style.display = "none";
     adjustPanel.style.display = "flex";
-    adjustPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+    // Canvas直下なので adjustPanel ではなく artSection を起点にスクロール
+    adjustPanel.scrollIntoView({ behavior: "smooth", block: "nearest" });
 });
 
 // キャンセル
