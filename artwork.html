@@ -158,6 +158,78 @@
     <!-- ボタン -->
     <!-- ================================= -->
 
+    <!-- ================================= -->
+    <!-- 調整パネル（ボタン直下に配置） -->
+    <!-- ================================= -->
+
+    <section id="adjustPanel" class="adjustPanel" style="display:none;">
+
+        <div class="adjustPanel__header">
+            <h3 class="adjustPanel__title">色や雰囲気を変更する</h3>
+            <p class="adjustPanel__sub">選択肢を選ぶか、自由に入力してAIに伝えてください</p>
+        </div>
+
+        <!-- チップ選択 -->
+        <div class="adjustChips" id="adjustChips">
+            <button class="chip" data-value="色を鮮やかにしたい">✨ 色を鮮やかに</button>
+            <button class="chip" data-value="もっと明るくしたい">☀️ もっと明るく</button>
+            <button class="chip" data-value="もっと暗くしたい">🌙 もっと暗く</button>
+            <button class="chip" data-value="線を増やしたい">〰️ 線を増やす</button>
+            <button class="chip" data-value="もっと抽象的にしたい">🌀 より抽象的に</button>
+            <button class="chip" data-value="もっと具体的にしたい">🔍 より具体的に</button>
+            <button class="chip" data-value="力強い印象にしたい">⚡ 力強い印象に</button>
+            <button class="chip" data-value="穏やかな印象にしたい">🌿 穏やかな印象に</button>
+        </div>
+
+        <!-- 自由入力 -->
+        <div class="adjustFreeInput">
+            <label for="adjustInput">自分の言葉で伝える（任意）</label>
+            <input
+                type="text"
+                id="adjustInput"
+                placeholder="例：青を増やして、中央に光が集まるようにしたい"
+            >
+        </div>
+
+        <!-- 選択中の内容プレビュー -->
+        <div id="adjustPreview" class="adjustPreview" style="display:none;">
+            <span class="adjustPreview__label">AIへの指示：</span>
+            <span id="adjustPreviewText" class="adjustPreview__text"></span>
+        </div>
+
+        <!-- 実行・キャンセル -->
+        <div class="adjustActions">
+            <button id="applyAdjustBtn" class="btn btn--primary btn--apply" disabled>
+                この内容で作品を更新する →
+            </button>
+            <button id="cancelAdjustBtn" class="btn btn--text">
+                キャンセル
+            </button>
+        </div>
+
+    </section>
+
+
+    <!-- ================================= -->
+    <!-- before/after 比較エリア（初期非表示） -->
+    <!-- ================================= -->
+
+    <section id="compareArea" class="compareArea glass" style="display:none;">
+        <h3 class="compareArea__title">変更前 → 変更後</h3>
+        <div class="compareArea__grid">
+            <div class="compareArea__item">
+                <p class="compareArea__label">変更前</p>
+                <img id="beforeImg" class="compareArea__img" alt="変更前">
+            </div>
+            <div class="compareArea__divider">→</div>
+            <div class="compareArea__item">
+                <p class="compareArea__label">変更後（現在）</p>
+                <canvas id="afterCanvas" class="compareArea__img"></canvas>
+            </div>
+        </div>
+    </section>
+
+
     <section class="buttonArea">
 
         <!-- メイン：保存 -->
@@ -170,8 +242,8 @@
 
             <button
                 id="openAdjustBtn"
-                class="btn btn--secondary">
-                AIと一緒に仕上げる
+                class="btn btn--secondary btn--adjust-open">
+                🎨 作品をさらに仕上げる
             </button>
 
             <button
@@ -188,49 +260,6 @@
             onclick="window.location.href='gallery.html'">
             ギャラリーへ戻る
         </button>
-
-    </section>
-
-
-    <!-- ================================= -->
-    <!-- 調整パネル（初期非表示） -->
-    <!-- ================================= -->
-
-    <section id="adjustPanel" class="adjustPanel" style="display:none;">
-
-        <h3 class="adjustPanel__title">作品のどこを変えたいですか？</h3>
-
-        <!-- チップ選択 -->
-        <div class="adjustChips" id="adjustChips">
-            <button class="chip" data-value="色を鮮やかにしたい">色を鮮やかにしたい</button>
-            <button class="chip" data-value="もっと暗くしたい">もっと暗くしたい</button>
-            <button class="chip" data-value="もっと明るくしたい">もっと明るくしたい</button>
-            <button class="chip" data-value="線を増やしたい">線を増やしたい</button>
-            <button class="chip" data-value="もっと抽象的にしたい">もっと抽象的にしたい</button>
-            <button class="chip" data-value="もっと具体的にしたい">もっと具体的にしたい</button>
-            <button class="chip" data-value="力強い印象にしたい">力強い印象にしたい</button>
-            <button class="chip" data-value="穏やかな印象にしたい">穏やかな印象にしたい</button>
-        </div>
-
-        <!-- 自由入力 -->
-        <div class="adjustFreeInput">
-            <label for="adjustInput">自分の言葉で指定する（任意）</label>
-            <input
-                type="text"
-                id="adjustInput"
-                placeholder="例：青を増やして、中央に光が集まるようにしたい"
-            >
-        </div>
-
-        <!-- 実行・キャンセル -->
-        <div class="adjustActions">
-            <button id="applyAdjustBtn" class="btn btn--primary">
-                この指示で作品を更新する
-            </button>
-            <button id="cancelAdjustBtn" class="btn btn--text">
-                キャンセル
-            </button>
-        </div>
 
     </section>
 

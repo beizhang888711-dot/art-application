@@ -441,24 +441,61 @@ const cancelAdjustBtn= document.getElementById("cancelAdjustBtn");
 const applyAdjustBtn = document.getElementById("applyAdjustBtn");
 const adjustInput    = document.getElementById("adjustInput");
 const adjustChips    = document.getElementById("adjustChips");
+const adjustPreview     = document.getElementById("adjustPreview");
+const adjustPreviewText = document.getElementById("adjustPreviewText");
+const compareArea    = document.getElementById("compareArea");
+const beforeImg      = document.getElementById("beforeImg");
+const afterCanvas    = document.getElementById("afterCanvas");
 
-// ── ボタンの有効/無効をリアルタイム更新 ──
-function syncApplyBtn() {
-    const hasChip = adjustChips.querySelector(".chip--selected") !== null;
-    const hasFree = adjustInput.value.trim().length > 0;
-    applyAdjustBtn.disabled = !(hasChip || hasFree);
+// ── 指示プレビューを更新 ──
+function updateAdjustPreview() {
+    const chips = [...adjustChips.querySelectorAll(".chip--selected")].map(c => c.dataset.value);
+    const free  = adjustInput.value.trim();
+    const parts = [...chips, ...(free ? [free] : [])];
+    const hasContent = parts.length > 0;
+    applyAdjustBtn.disabled = !hasContent;
+    if (hasContent) {
+        adjustPreviewText.textContent = parts.join("、");
+        adjustPreview.style.display   = "flex";
+    } else {
+        adjustPreview.style.display = "none";
+    }
 }
 
-// ── 再生成コア（チップ選択・自由入力Enterどちらからも呼ぶ） ──
+// ── トースト通知 ──
+function showToast(message, type = "success") {
+    const existing = document.getElementById("adjustToast");
+    if (existing) existing.remove();
+
+    const toast = document.createElement("div");
+    toast.id = "adjustToast";
+    toast.className = `adjustToast adjustToast--${type}`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+
+    requestAnimationFrame(() => toast.classList.add("adjustToast--visible"));
+    setTimeout(() => {
+        toast.classList.remove("adjustToast--visible");
+        setTimeout(() => toast.remove(), 400);
+    }, 3000);
+}
+
+// ── 再生成コア ──
 async function runAdjust(instruction) {
+
+    // before画像を保存
+    const beforeDataUrl = canvas.toDataURL("image/png");
 
     // パネルを閉じてリセット
     adjustPanel.style.display = "none";
     adjustChips.querySelectorAll(".chip--selected").forEach(c => c.classList.remove("chip--selected"));
     adjustInput.value = "";
+    adjustPreview.style.display = "none";
     applyAdjustBtn.disabled = true;
 
-    // Canvas リセット＆ローディング
+    // Canvas位置までスクロール → ローディング開始
+    canvas.scrollIntoView({ behavior: "smooth", block: "center" });
+
     ctx.clearRect(0, 0, W, H);
     startLoadingMessages();
     aiLoading.style.display = "flex";
@@ -469,6 +506,9 @@ async function runAdjust(instruction) {
     // 保存ボタンをリセット
     const saveBtn = document.getElementById("saveGalleryBtn");
     if (saveBtn) { saveBtn.textContent = "この作品を保存"; saveBtn.disabled = false; }
+
+    // 比較エリアをいったん隠す
+    compareArea.style.display = "none";
 
     try {
         const ai = await fetchAIParams(memories, conversationHistory, instruction, artworkStructured);
@@ -510,9 +550,19 @@ async function runAdjust(instruction) {
             if (el) el.textContent = ai.reflection;
         }
 
+        // ── before/after 比較表示 ──
+        beforeImg.src = beforeDataUrl;
+        // after canvas にコピー
+        afterCanvas.width  = canvas.width;
+        afterCanvas.height = canvas.height;
+        afterCanvas.getContext("2d").drawImage(canvas, 0, 0);
+        compareArea.style.display = "block";
+
+        showToast("✅ 作品を更新しました");
+
     } catch (err) {
         console.error("調整再生成失敗:", err);
-        // フォールバック：グラデーション背景
+        showToast("⚠️ 更新に失敗しました。もう一度お試しください。", "error");
         const grad = ctx.createLinearGradient(0, 0, W, H);
         grad.addColorStop(0, "#1a1a2e");
         grad.addColorStop(1, "#16213e");
@@ -525,20 +575,22 @@ async function runAdjust(instruction) {
             canvas.style.transition = "1.2s";
             canvas.style.opacity    = "1";
             canvas.style.transform  = "scale(1)";
+            // 完了後にCanvasが見える位置へスクロール
+            setTimeout(() => canvas.scrollIntoView({ behavior: "smooth", block: "center" }), 200);
         }, 80);
     }
 }
 
-// ── チップをクリックしたら選択トグル → ボタン状態を更新 ──
+// ── チップをクリックしたら選択トグル → プレビュー更新 ──
 adjustChips.addEventListener("click", e => {
     const chip = e.target.closest(".chip");
     if (!chip) return;
     chip.classList.toggle("chip--selected");
-    syncApplyBtn();
+    updateAdjustPreview();
 });
 
-// ── 自由入力を打つたびにボタン状態を更新、Enterで即実行 ──
-adjustInput.addEventListener("input", syncApplyBtn);
+// ── 自由入力 → プレビュー更新、Enter で即実行 ──
+adjustInput.addEventListener("input", updateAdjustPreview);
 adjustInput.addEventListener("keydown", e => {
     if (e.key !== "Enter") return;
     const free = adjustInput.value.trim();
@@ -547,9 +599,10 @@ adjustInput.addEventListener("keydown", e => {
     runAdjust([...chips, free].join("、"));
 });
 
-// 「AIと一緒に仕上げる」→ パネルを開く
+// 「🎨 作品をさらに仕上げる」→ パネルを開いてスクロール
 openAdjustBtn.addEventListener("click", () => {
-    applyAdjustBtn.disabled = true; // 初期は無効
+    applyAdjustBtn.disabled = true;
+    adjustPreview.style.display = "none";
     adjustPanel.style.display = "flex";
     adjustPanel.scrollIntoView({ behavior: "smooth", block: "start" });
 });
@@ -559,9 +612,10 @@ cancelAdjustBtn.addEventListener("click", () => {
     adjustPanel.style.display = "none";
     adjustChips.querySelectorAll(".chip--selected").forEach(c => c.classList.remove("chip--selected"));
     adjustInput.value = "";
+    adjustPreview.style.display = "none";
 });
 
-// 「この指示で作品を更新する」ボタン
+// 「この内容で作品を更新する」ボタン
 applyAdjustBtn.addEventListener("click", () => {
     const chips = [...adjustChips.querySelectorAll(".chip--selected")].map(c => c.dataset.value);
     const free  = adjustInput.value.trim();
