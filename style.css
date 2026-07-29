@@ -1372,3 +1372,108 @@ line-height:2;
     border-style:dashed;
 
 }
+
+/* ===========================================
+   サイトフッター（Copyright）
+=========================================== */
+
+.siteFooter{
+    text-align:center;
+    padding:28px 20px;
+    border-top:1px solid rgba(0,0,0,.08);
+    margin-top:20px;
+}
+
+.copyright{
+    font-size:12px;
+    color:#8a9099;
+    letter-spacing:.02em;
+}
+
+/* ===========================================
+   ワークショップ：ホームへ戻るボタン
+=========================================== */
+
+.backHomeBtn{
+    border:1.5px solid rgba(255,255,255,.55);
+    background:rgba(255,255,255,.20);
+    backdrop-filter:blur(10px);
+    color:#444;
+    padding:8px 18px;
+    border-radius:999px;
+    font-size:13px;
+    font-weight:500;
+    cursor:pointer;
+    transition:background .2s, transform .2s;
+}
+
+.backHomeBtn:hover{
+    background:rgba(255,255,255,.45);
+    transform:translateY(-1px);
+}
+
+/* 確認ポップアップ */
+.backConfirmModal{
+    position:fixed;
+    inset:0;
+    background:rgba(15,20,40,0.5);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:2000;
+    padding:24px;
+}
+
+.backConfirmModal__card{
+    background:#fff;
+    border-radius:20px;
+    padding:32px 36px;
+    max-width:360px;
+    width:100%;
+    text-align:center;
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+    box-shadow:0 20px 60px rgba(0,0,0,.15);
+}
+
+.backConfirmModal__text{
+    font-size:15px;
+    color:#1f2328;
+    line-height:1.75;
+}
+
+.backConfirmModal__actions{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+
+.backConfirmModal__btn{
+    padding:12px 0;
+    border-radius:999px;
+    border:none;
+    font-size:14px;
+    font-weight:600;
+    cursor:pointer;
+    transition:background .2s, transform .2s;
+}
+
+.backConfirmModal__btn--ok{
+    background:#ef4444;
+    color:#fff;
+}
+
+.backConfirmModal__btn--ok:hover{
+    background:#dc2626;
+    transform:translateY(-1px);
+}
+
+.backConfirmModal__btn--cancel{
+    background:#f3f4f6;
+    color:#444;
+}
+
+.backConfirmModal__btn--cancel:hover{
+    background:#e5e7eb;
+}

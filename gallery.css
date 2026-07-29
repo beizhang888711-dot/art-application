@@ -511,3 +511,21 @@ body{
     color:#777;
 
 }
+
+/* ===========================================
+   サイトフッター（Copyright）
+=========================================== */
+
+.siteFooter{
+    text-align:center;
+    padding:28px 20px;
+    border-top:1px solid rgba(0,0,0,.08);
+    margin-top:20px;
+}
+
+.copyright{
+    font-size:12px;
+    color:#8a9099;
+    letter-spacing:.02em;
+}
+

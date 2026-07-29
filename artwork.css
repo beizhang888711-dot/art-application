@@ -1008,3 +1008,98 @@ body{
     transition:opacity .3s;
 
 }
+
+/* ===========================================
+   サイトフッター（Copyright）
+=========================================== */
+
+.siteFooter{
+    text-align:center;
+    padding:28px 20px;
+    border-top:1px solid rgba(0,0,0,.08);
+    margin-top:40px;
+}
+
+.copyright{
+    font-size:12px;
+    color:#8a9099;
+    letter-spacing:.02em;
+}
+
+/* ===========================================
+   PDF印刷用スタイル
+=========================================== */
+
+@media print{
+
+    body{
+        background:white !important;
+        color:#1f2328 !important;
+    }
+
+    .background,
+    .buttonArea,
+    .adjustPanel,
+    .intentModal,
+    .surveyModal,
+    .copyrightNotice{
+        display:none !important;
+    }
+
+    .container{
+        width:100%;
+        padding:0;
+    }
+
+    #artCanvas{
+        width:560px !important;
+        height:560px !important;
+        border-radius:12px;
+        box-shadow:none;
+        page-break-inside:avoid;
+    }
+
+    .artPanel{
+        background:white;
+        border:1px solid #ddd;
+        border-radius:12px;
+        padding:20px;
+        margin-bottom:24px;
+    }
+
+    .infoPanel,
+    .keywordPanel{
+        background:white;
+        border:1px solid #ddd;
+        border-radius:12px;
+        page-break-inside:avoid;
+    }
+
+    .siteFooter{
+        margin-top:24px;
+        padding:16px 0 0;
+    }
+
+    .pdf-report-header{
+        display:block !important;
+        text-align:center;
+        padding:16px 0 24px;
+        font-size:13px;
+        color:#57606a;
+        border-bottom:1px solid #ddd;
+        margin-bottom:24px;
+    }
+
+    .pdf-conversation{
+        display:block !important;
+        page-break-before:always;
+        padding-top:24px;
+    }
+
+}
+
+/* 印刷時のみ表示する要素は通常時は非表示 */
+.pdf-report-header,
+.pdf-conversation{
+    display:none;
+}

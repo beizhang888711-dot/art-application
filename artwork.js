@@ -668,3 +668,54 @@ document.getElementById("intentSkipBtn").onclick = () => {
     doSave({ title: aiTitle });
     openSurvey();
 };
+
+// ======================================
+// PDFレポートエクスポート
+// ======================================
+
+document.getElementById("exportPdfBtn").addEventListener("click", () => {
+
+    // 印刷用ヘッダーを動的生成（会話履歴＋作品説明）
+    const conversationHistory = JSON.parse(localStorage.getItem("conversationHistory")) || [];
+    const now = new Date().toLocaleDateString("ja-JP", { year:"numeric", month:"long", day:"numeric" });
+
+    // 既存の印刷用要素を削除してから再生成
+    document.querySelectorAll(".pdf-report-header, .pdf-conversation").forEach(el => el.remove());
+
+    // ── ヘッダー（作品情報）──
+    const header = document.createElement("div");
+    header.className = "pdf-report-header";
+    header.innerHTML = `
+        <strong style="font-size:18px;">${document.getElementById("artTitle").textContent}</strong><br>
+        Art Reflection — AIとの共創作品レポート<br>
+        生成日：${now}
+    `;
+    document.querySelector(".container").insertBefore(header, document.querySelector(".container").firstChild);
+
+    // ── 会話ログ（2ページ目）──
+    if (conversationHistory.length > 0) {
+        const convSection = document.createElement("div");
+        convSection.className = "pdf-conversation";
+        let rows = conversationHistory.map(msg => {
+            const who  = msg.role === "user" ? "あなた" : "AI";
+            const style = msg.role === "user"
+                ? "background:#f0f4ff;padding:10px 14px;border-radius:8px;margin-bottom:10px;"
+                : "background:#f7f8fa;padding:10px 14px;border-radius:8px;margin-bottom:10px;";
+            return `<div style="${style}"><strong>${who}：</strong>${msg.content}</div>`;
+        }).join("");
+
+        convSection.innerHTML = `
+            <h2 style="font-size:16px;margin-bottom:16px;color:#1f2328;">AIとの対話ログ</h2>
+            ${rows}
+        `;
+        document.querySelector(".container").appendChild(convSection);
+    }
+
+    // 印刷ダイアログを開く
+    window.print();
+
+    // 印刷後に追加要素を削除
+    setTimeout(() => {
+        document.querySelectorAll(".pdf-report-header, .pdf-conversation").forEach(el => el.remove());
+    }, 1000);
+});

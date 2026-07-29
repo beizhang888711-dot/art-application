@@ -18,6 +18,17 @@
 
 <div class="background"></div>
 
+<!-- ホームへ戻る確認ポップアップ -->
+<div id="backConfirmModal" class="backConfirmModal" style="display:none;" role="dialog" aria-modal="true">
+    <div class="backConfirmModal__card">
+        <p class="backConfirmModal__text">ホームに戻りますか？<br>入力内容はリセットされます。</p>
+        <div class="backConfirmModal__actions">
+            <button id="backConfirmOk" class="backConfirmModal__btn backConfirmModal__btn--ok">ホームに戻る</button>
+            <button id="backConfirmCancel" class="backConfirmModal__btn backConfirmModal__btn--cancel">続ける</button>
+        </div>
+    </div>
+</div>
+
 <header>
 
 <div class="logo">
@@ -26,9 +37,11 @@ Art Reflection
 
 </div>
 
-<div>
+<div style="display:flex; align-items:center; gap:16px;">
 
-制作中...
+    <button id="backHomeBtn" class="backHomeBtn">← ホームへ戻る</button>
+
+    制作中...
 
 </div>
 
@@ -202,6 +215,10 @@ RIGHT
 </div>
 
 </div>
+
+<footer class="siteFooter">
+    <p class="copyright">Copyright &copy; 2026 Art Reflection 研究会. All rights reserved.</p>
+</footer>
 
 <script src="workshop.js"></script>
 

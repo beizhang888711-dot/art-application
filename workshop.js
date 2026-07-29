@@ -299,3 +299,31 @@ input.addEventListener("keypress", e => {
     input.focus();
 
 })();
+
+// ======================================
+// ホームへ戻るボタン＋確認ポップアップ
+// ======================================
+
+const backHomeBtn       = document.getElementById("backHomeBtn");
+const backConfirmModal  = document.getElementById("backConfirmModal");
+const backConfirmOk     = document.getElementById("backConfirmOk");
+const backConfirmCancel = document.getElementById("backConfirmCancel");
+
+backHomeBtn.addEventListener("click", () => {
+    backConfirmModal.style.display = "flex";
+});
+
+backConfirmOk.addEventListener("click", () => {
+    window.location.href = "index.html";
+});
+
+backConfirmCancel.addEventListener("click", () => {
+    backConfirmModal.style.display = "none";
+});
+
+// 背景クリックでも閉じる
+backConfirmModal.addEventListener("click", e => {
+    if (e.target === backConfirmModal) {
+        backConfirmModal.style.display = "none";
+    }
+});
