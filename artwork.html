@@ -273,7 +273,10 @@
 <div id="intentModal" class="intentModal" style="display:none;" role="dialog" aria-modal="true">
     <div class="intentModal__card">
 
-        <h3 class="intentModal__title">作品を保存する前に</h3>
+        <div class="intentModal__cardHeader">
+            <h3 class="intentModal__title">作品を保存する前に</h3>
+            <button id="intentCloseBtn" class="intentModal__closeBtn" aria-label="閉じる">×</button>
+        </div>
         <p class="intentModal__desc">任意です。あとからギャラリーで振り返るときに役立ちます。</p>
 
         <div class="intentModal__fields">
@@ -313,6 +316,7 @@
         <div class="intentModal__actions">
             <button id="intentSaveBtn" class="btn btn--primary">保存する</button>
             <button id="intentSkipBtn" class="btn btn--text">スキップして保存</button>
+            <button id="intentCancelBtn" class="btn btn--text intentModal__cancelBtn">作品に戻る</button>
         </div>
 
     </div>

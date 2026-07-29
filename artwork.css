@@ -939,6 +939,54 @@ body{
 
     overflow-y:auto;
 
+    position:relative;
+
+}
+
+/* カードヘッダー（タイトル＋×ボタン横並び） */
+.intentModal__cardHeader{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:12px;
+}
+
+/* × 閉じるボタン */
+.intentModal__closeBtn{
+    flex-shrink:0;
+    width:32px;
+    height:32px;
+    border:none;
+    background:#f3f4f6;
+    border-radius:50%;
+    font-size:18px;
+    line-height:1;
+    cursor:pointer;
+    color:#57606a;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:background .15s, color .15s;
+    margin-top:-2px;
+}
+
+.intentModal__closeBtn:hover{
+    background:#e5e7eb;
+    color:#1f2328;
+}
+
+/* 「作品に戻る」ボタン（他と分けて下に配置） */
+.intentModal__cancelBtn{
+    margin-top:4px;
+    color:#8a9099;
+    border-top:1px solid #f0f0f0;
+    padding-top:12px;
+    width:100%;
+    font-size:13px;
+}
+
+.intentModal__cancelBtn:hover{
+    color:#3d5a99;
 }
 
 .intentModal__title,

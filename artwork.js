@@ -694,12 +694,43 @@ function openSurvey() {
     };
 }
 
+// ── 制作意図モーダルを閉じる（保存せず戻る）──
+function closeIntentModal() {
+    intentModal.style.display = "none";
+}
+
 // ── 「この作品を保存」クリック → 制作意図モーダルを開く ──
 if (saveGalleryBtn) {
     saveGalleryBtn.onclick = () => {
         intentModal.style.display = "flex";
+        // ブラウザ戻る操作用に履歴を積む
+        history.pushState({ modal: "intent" }, "");
     };
 }
+
+// ── 制作意図モーダル：「×」ボタン ──
+document.getElementById("intentCloseBtn").onclick = closeIntentModal;
+
+// ── 制作意図モーダル：「作品に戻る」ボタン ──
+document.getElementById("intentCancelBtn").onclick = closeIntentModal;
+
+// ── 制作意図モーダル：背景クリックで閉じる ──
+intentModal.addEventListener("click", e => {
+    if (e.target === intentModal) closeIntentModal();
+});
+
+// ── Escキーで閉じる ──
+document.addEventListener("keydown", e => {
+    if (e.key === "Escape") {
+        if (intentModal.style.display === "flex") closeIntentModal();
+        if (surveyModal.style.display  === "flex") surveyModal.style.display = "none";
+    }
+});
+
+// ── ブラウザ戻るボタンでモーダルを閉じる ──
+window.addEventListener("popstate", () => {
+    if (intentModal.style.display === "flex") closeIntentModal();
+});
 
 // ── 制作意図モーダル：「保存する」──
 document.getElementById("intentSaveBtn").onclick = () => {
