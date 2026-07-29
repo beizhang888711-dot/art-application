@@ -707,6 +707,33 @@ margin-top:20px;
     border-color:#c084fc;
 }
 
+/* フェーズ冒頭カード */
+.phaseCard{
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+    margin:16px 0 8px;
+    padding:10px 14px;
+    background:rgba(108,140,255,.07);
+    border-left:3px solid #6c8cff;
+    border-radius:0 10px 10px 0;
+    animation:fadeUp .4s ease;
+}
+
+.phaseCard__step{
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:.06em;
+    color:#6c8cff;
+    text-transform:none;
+}
+
+.phaseCard__intro{
+    font-size:12px;
+    color:#444;
+    line-height:1.65;
+}
+
 /* AIバブルWrap（ヒントボタン付き） */
 .aiBubbleWrap{
     display:flex;
@@ -715,21 +742,43 @@ margin-top:20px;
     max-width:80%;
 }
 
+/* バブルと「?」ボタンを横並び */
+.aiBubbleRow{
+    display:flex;
+    align-items:flex-start;
+    gap:6px;
+}
+
+/* 「?」ヒントボタン */
 .msgHintBtn{
-    align-self:flex-start;
-    padding:4px 12px;
-    font-size:11px;
-    color:#888;
-    background:transparent;
-    border:1px solid #ddd;
-    border-radius:999px;
+    flex-shrink:0;
+    margin-top:6px;
+    width:22px;
+    height:22px;
+    border-radius:50%;
+    border:1.5px solid #c5d0f0;
+    background:#fff;
+    font-size:12px;
+    font-weight:700;
+    color:#8a9099;
     cursor:pointer;
-    transition:color .15s, border-color .15s;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:background .15s, border-color .15s, color .15s;
+    line-height:1;
 }
 
 .msgHintBtn:hover{
-    color:#3d5a99;
+    background:#eef3ff;
     border-color:#6c8cff;
+    color:#3d5a99;
+}
+
+.msgHintBtn--open{
+    background:#6c8cff;
+    border-color:#6c8cff;
+    color:#fff;
 }
 
 .msgHint{
@@ -741,6 +790,7 @@ margin-top:20px;
     color:#444;
     line-height:1.7;
     margin-top:2px;
+    animation:fadeUp .3s ease;
 }
 
 .inputArea input{

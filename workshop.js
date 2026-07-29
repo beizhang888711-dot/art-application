@@ -77,7 +77,55 @@ function addMessage(text, type) {
     chatArea.scrollTop = chatArea.scrollHeight;
 }
 
-// AI質問バブルをボタン付きで表示
+// ── フェーズ定義（冒頭カード＋ヒント文） ──
+const PHASE_INFO = {
+    1: {
+        label:   "ステップ 1 ／ 今の気持ち",
+        intro:   "今どんな気持ちか、思い浮かぶ言葉を教えてください。",
+        hint:    "あなたの気持ちを作品の「色」や「雰囲気」に変えるための質問です。正解はないので、ぱっと思ったことを書いてみてください。"
+    },
+    2: {
+        label:   "ステップ 2 ／ 気持ちのきっかけ",
+        intro:   "その気持ちになったきっかけや背景を聞きます。",
+        hint:    "きっかけを知ることで、作品に深みが生まれます。うまく言えなくても大丈夫です。"
+    },
+    3: {
+        label:   "ステップ 3 ／ 色・風景のイメージ",
+        intro:   "作品にしたい色や景色のイメージを教えてください。",
+        hint:    "頭に浮かぶ色や景色が、作品の見た目のベースになります。正解はありません。"
+    },
+    4: {
+        label:   "ステップ 4 ／ 作品で伝えたいこと",
+        intro:   "この作品で一番表したいことを聞かせてください。",
+        hint:    "「この作品で何を残したいか」を考える最後の質問です。自分への贈り物だと思って答えてみてください。"
+    },
+    5: {
+        label:   "ステップ 5 ／ 最終確認",
+        intro:   "最後にもう一つだけ聞かせてください。",
+        hint:    "ここまでの言葉をまとめて、作品づくりへ進みます。"
+    }
+};
+
+// 前回表示したフェーズ（カード重複防止）
+let lastPhaseShown = 0;
+
+// フェーズ冒頭カードをチャットに挿入
+function maybeShowPhaseCard(currentStep) {
+    const phase = PHASE_INFO[currentStep];
+    if (!phase || currentStep === lastPhaseShown) return;
+    lastPhaseShown = currentStep;
+
+    const card = document.createElement("div");
+    card.className = "phaseCard";
+    card.innerHTML = `
+        <span class="phaseCard__step">${phase.label}</span>
+        <p class="phaseCard__intro">${phase.intro}</p>
+    `;
+    chatArea.appendChild(card);
+    chatArea.scrollTop = chatArea.scrollHeight;
+}
+
+// AI質問バブルを「？」ヒントボタン付きで表示
 function addAIMessage(text) {
     const message = document.createElement("div");
     message.className = "message ai";
@@ -89,25 +137,31 @@ function addAIMessage(text) {
     const wrap = document.createElement("div");
     wrap.className = "aiBubbleWrap";
 
+    const bubbleRow = document.createElement("div");
+    bubbleRow.className = "aiBubbleRow";
+
     const bubble = document.createElement("div");
     bubble.className = "bubble";
     bubble.innerHTML = text;
 
-    // ヒントボタン（質問の意味を見る）
+    // 「？」ヒントボタン — バブルと横並び、小さく目立たない
     const hintBtn = document.createElement("button");
     hintBtn.className = "msgHintBtn";
-    hintBtn.textContent = "この質問の意図は？";
+    hintBtn.setAttribute("aria-label", "この質問の意図を見る");
+    hintBtn.textContent = "?";
     hintBtn.onclick = () => {
         const existing = wrap.querySelector(".msgHint");
-        if (existing) { existing.remove(); return; }
+        if (existing) { existing.remove(); hintBtn.classList.remove("msgHintBtn--open"); return; }
         const hint = document.createElement("div");
         hint.className = "msgHint";
         hint.textContent = getQuestionHint(step);
         wrap.appendChild(hint);
+        hintBtn.classList.add("msgHintBtn--open");
     };
 
-    wrap.appendChild(bubble);
-    wrap.appendChild(hintBtn);
+    bubbleRow.appendChild(bubble);
+    bubbleRow.appendChild(hintBtn);
+    wrap.appendChild(bubbleRow);
     message.appendChild(avatar);
     message.appendChild(wrap);
     chatArea.appendChild(message);
@@ -116,14 +170,8 @@ function addAIMessage(text) {
 
 // フェーズごとのヒント文
 function getQuestionHint(currentStep) {
-    const hints = {
-        1: "今のあなたの気持ちを、作品の「色」や「雰囲気」に変えるための質問です。どんな言葉でもOKです。",
-        2: "その気持ちになったきっかけを知ることで、作品に深みが生まれます。うまく言えなくても大丈夫です。",
-        3: "頭に浮かぶ色や景色が、作品のベースになります。正解はありません。",
-        4: "この作品で「何を残したいか」を考える質問です。自分への贈り物だと思って答えてみてください。",
-        5: "最後の確認です。ここまでの言葉をまとめて、作品づくりへ進みます。"
-    };
-    return hints[currentStep] || "あなたの言葉が作品に反映されます。思ったことを自由に書いてください。";
+    return (PHASE_INFO[currentStep]?.hint) ||
+        "あなたの言葉が作品に反映されます。思ったことを自由に書いてください。";
 }
 
 function showTyping() {
@@ -269,6 +317,8 @@ async function fetchClosingMessage() {
 // ======================================
 
 async function proceedToNextQuestion(isSkipped = false) {
+    // フェーズが変わった場合は冒頭カードを挿入
+    maybeShowPhaseCard(step);
     setInputDisabled(true);
     showTyping();
     try {
@@ -412,6 +462,11 @@ dontKnowBtn.addEventListener("click", dontKnow);
     // 挨拶メッセージ（全TOTAL_STEPS問の案内を含む）
     const greeting = `こんにちは。今日は<strong>「${selectedTheme}」</strong>をテーマに、あなた自身を映す作品を一緒に作ります。<br><small style="color:#888;">全部で${TOTAL_STEPS}つの質問をします。答えにくい質問はスキップできます。</small>`;
     addMessage(greeting, "ai");
+
+    // ステップ1の冒頭カードを表示
+    step = 1;
+    maybeShowPhaseCard(step);
+    step = 0; // fetchNextQuestion は step=0 のまま呼ぶ（サーバー側で step=1 として扱う）
 
     showTyping();
     try {
