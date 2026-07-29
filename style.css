@@ -620,6 +620,37 @@ max-width:80%;
 
 }
 
+/* ステップドット */
+.progressMeta{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:6px;
+}
+
+.stepDots{
+    display:flex;
+    gap:6px;
+}
+
+.stepDot{
+    width:8px;
+    height:8px;
+    border-radius:50%;
+    background:#ddd;
+    transition:background .3s, transform .2s;
+}
+
+.stepDot--active{
+    background:#6c8cff;
+    transform:scale(1.25);
+}
+
+.stepDot--done{
+    background:#a5b4fc;
+}
+
+/* 入力エリア */
 .inputArea{
 
 display:flex;
@@ -628,6 +659,88 @@ gap:15px;
 
 margin-top:20px;
 
+}
+
+/* スキップ・よく分からないボタン行 */
+.inputActions{
+    display:flex;
+    gap:10px;
+    margin-top:8px;
+    flex-wrap:wrap;
+}
+
+.inputActionBtn{
+    padding:7px 16px;
+    border-radius:999px;
+    border:1.5px solid #c5d0f0;
+    background:rgba(255,255,255,.7);
+    font-size:12px;
+    font-weight:500;
+    cursor:pointer;
+    color:#3d5a99;
+    transition:background .15s, border-color .15s;
+}
+
+.inputActionBtn:hover:not(:disabled){
+    background:#eef3ff;
+    border-color:#6c8cff;
+}
+
+.inputActionBtn:disabled{
+    opacity:.4;
+    cursor:default;
+}
+
+.inputActionBtn--skip{
+    color:#57606a;
+    border-color:#ddd;
+}
+
+.inputActionBtn--dontknow{
+    color:#a855f7;
+    border-color:#e9d5ff;
+    background:rgba(243,232,255,.5);
+}
+
+.inputActionBtn--dontknow:hover:not(:disabled){
+    background:#f3e8ff;
+    border-color:#c084fc;
+}
+
+/* AIバブルWrap（ヒントボタン付き） */
+.aiBubbleWrap{
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+    max-width:80%;
+}
+
+.msgHintBtn{
+    align-self:flex-start;
+    padding:4px 12px;
+    font-size:11px;
+    color:#888;
+    background:transparent;
+    border:1px solid #ddd;
+    border-radius:999px;
+    cursor:pointer;
+    transition:color .15s, border-color .15s;
+}
+
+.msgHintBtn:hover{
+    color:#3d5a99;
+    border-color:#6c8cff;
+}
+
+.msgHint{
+    padding:8px 14px;
+    background:#f7f8fa;
+    border-left:3px solid #6c8cff;
+    border-radius:0 8px 8px 0;
+    font-size:12px;
+    color:#444;
+    line-height:1.7;
+    margin-top:2px;
 }
 
 .inputArea input{

@@ -4,7 +4,7 @@
 // ======================================
 
 const PROXY_ENDPOINT = "/api";
-const TOTAL_STEPS    = 6; // 質問数（ステップ1×2問、ステップ2×2問、ステップ3×2問）
+const TOTAL_STEPS    = 5; // 質問数（4フェーズ5問）
 
 // ======================================
 // DOM
@@ -13,20 +13,24 @@ const TOTAL_STEPS    = 6; // 質問数（ステップ1×2問、ステップ2×2�
 const chatArea     = document.getElementById("chatArea");
 const input        = document.getElementById("userInput");
 const sendButton   = document.getElementById("sendButton");
+const skipButton   = document.getElementById("skipButton");
+const dontKnowBtn  = document.getElementById("dontKnowBtn");
 const progressFill = document.querySelector(".progressFill");
 const progressValue= document.getElementById("progressValue");
 const emotionBars  = document.querySelectorAll(".fill");
 const artwork      = document.querySelector(".previewArtwork");
 const phaseLabel   = document.getElementById("phaseLabel");
+const stepDots     = document.getElementById("stepDots");
 
 // ======================================
 // 状態
 // ======================================
 
 const selectedTheme = localStorage.getItem("selectedTheme") || "自由";
-let step     = 0;       // 現在の質問ステップ（0〜TOTAL_STEPS）
-let memories = [];      // ユーザーの全回答
-let history  = [];      // AIに渡す会話履歴 [{role, content}]
+let step        = 0;     // 現在の質問ステップ（0〜TOTAL_STEPS）
+let memories    = [];    // ユーザーの全回答
+let history     = [];    // AIに渡す会話履歴 [{role, content}]
+let lastSkipped = false; // 直前のステップがスキップされたか
 
 // ======================================
 // テーマ表示
@@ -34,6 +38,22 @@ let history  = [];      // AIに渡す会話履歴 [{role, content}]
 
 const themeName = document.getElementById("themeName");
 if (themeName) themeName.textContent = `「${selectedTheme}」`;
+
+// ======================================
+// ステップドット更新
+// ======================================
+
+function updateStepDots() {
+    if (!stepDots) return;
+    stepDots.innerHTML = "";
+    for (let i = 1; i <= TOTAL_STEPS; i++) {
+        const dot = document.createElement("span");
+        dot.className = "stepDot" +
+            (i < step  ? " stepDot--done" :
+             i === step ? " stepDot--active" : "");
+        stepDots.appendChild(dot);
+    }
+}
 
 // ======================================
 // ユーティリティ
@@ -57,6 +77,55 @@ function addMessage(text, type) {
     chatArea.scrollTop = chatArea.scrollHeight;
 }
 
+// AI質問バブルをボタン付きで表示
+function addAIMessage(text) {
+    const message = document.createElement("div");
+    message.className = "message ai";
+
+    const avatar = document.createElement("div");
+    avatar.className = "avatar";
+    avatar.textContent = "🤖";
+
+    const wrap = document.createElement("div");
+    wrap.className = "aiBubbleWrap";
+
+    const bubble = document.createElement("div");
+    bubble.className = "bubble";
+    bubble.innerHTML = text;
+
+    // ヒントボタン（質問の意味を見る）
+    const hintBtn = document.createElement("button");
+    hintBtn.className = "msgHintBtn";
+    hintBtn.textContent = "この質問の意図は？";
+    hintBtn.onclick = () => {
+        const existing = wrap.querySelector(".msgHint");
+        if (existing) { existing.remove(); return; }
+        const hint = document.createElement("div");
+        hint.className = "msgHint";
+        hint.textContent = getQuestionHint(step);
+        wrap.appendChild(hint);
+    };
+
+    wrap.appendChild(bubble);
+    wrap.appendChild(hintBtn);
+    message.appendChild(avatar);
+    message.appendChild(wrap);
+    chatArea.appendChild(message);
+    chatArea.scrollTop = chatArea.scrollHeight;
+}
+
+// フェーズごとのヒント文
+function getQuestionHint(currentStep) {
+    const hints = {
+        1: "今のあなたの気持ちを、作品の「色」や「雰囲気」に変えるための質問です。どんな言葉でもOKです。",
+        2: "その気持ちになったきっかけを知ることで、作品に深みが生まれます。うまく言えなくても大丈夫です。",
+        3: "頭に浮かぶ色や景色が、作品のベースになります。正解はありません。",
+        4: "この作品で「何を残したいか」を考える質問です。自分への贈り物だと思って答えてみてください。",
+        5: "最後の確認です。ここまでの言葉をまとめて、作品づくりへ進みます。"
+    };
+    return hints[currentStep] || "あなたの言葉が作品に反映されます。思ったことを自由に書いてください。";
+}
+
 function showTyping() {
     const el = document.createElement("div");
     el.className = "message ai";
@@ -75,19 +144,19 @@ function updateProgress() {
     const percent = Math.min(Math.round((step / TOTAL_STEPS) * 100), 100);
     progressFill.style.width  = percent + "%";
     progressValue.innerHTML = percent === 100
-        ? `100% になりました 🎉 <strong>質問はこれで終了です！</strong><br><br>
-        あなたの言葉や感情から、
-        世界に一つだけの作品を生成する準備が整いました。<br><br>
-        右側のどんな表現にしますか？を選択し、「作品を生成する→」を押して、
-        あなただけのアートを完成させましょう。`
-        : percent + "%";
+        ? `完了 🎉 <strong>すべての質問が終わりました！</strong><br><br>
+        右のパネルからスタイルを選んで、「作品を生成する →」を押してください。`
+        : `${step} / ${TOTAL_STEPS}`;
 
     // フェーズラベル更新
     if (phaseLabel) {
-        if (step <= 2)      phaseLabel.textContent = "ステップ 1 ／ 感情を見つける";
-        else if (step <= 4) phaseLabel.textContent = "ステップ 2 ／ 背景を言葉にする";
-        else                phaseLabel.textContent = "ステップ 3 ／ 表現を自分で決める";
+        if      (step <= 1) phaseLabel.textContent = "ステップ 1 ／ 今の気持ち";
+        else if (step <= 2) phaseLabel.textContent = "ステップ 2 ／ 気持ちのきっかけ";
+        else if (step <= 3) phaseLabel.textContent = "ステップ 3 ／ 色・風景のイメージ";
+        else                phaseLabel.textContent = "ステップ 4 ／ 作品で伝えたいこと";
     }
+
+    updateStepDots();
 }
 
 function updateEmotion() {
@@ -161,7 +230,7 @@ function finishWorkshop() {
 // AIに次の質問を生成させる
 // ======================================
 
-async function fetchNextQuestion() {
+async function fetchNextQuestion(isSkipped = false) {
     const response = await fetch(`${PROXY_ENDPOINT}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -169,7 +238,8 @@ async function fetchNextQuestion() {
             theme:      selectedTheme,
             history:    history,
             step:       step,
-            totalSteps: TOTAL_STEPS
+            totalSteps: TOTAL_STEPS,
+            isSkipped:  isSkipped
         })
     });
     if (!response.ok) throw new Error(`chat API error: ${response.status}`);
@@ -191,25 +261,56 @@ async function fetchClosingMessage() {
     });
     if (!response.ok) throw new Error(`chat API error: ${response.status}`);
     const data = await response.json();
-    // AIが疑問符を返してしまった場合に後処理で除去
     return data.question.replace(/[？?]/g, "。").replace(/。。/g, "。").trim();
 }
 
 // ======================================
-// 送信処理
+// 共通：次の質問を取得して表示
+// ======================================
+
+async function proceedToNextQuestion(isSkipped = false) {
+    setInputDisabled(true);
+    showTyping();
+    try {
+        const question = await fetchNextQuestion(isSkipped);
+        removeTyping();
+        history.push({ role: "assistant", content: question });
+        addAIMessage(question);
+    } catch {
+        removeTyping();
+        const fallbacks = [
+            "そうなんだね。次に、その気持ちになったきっかけはあるかな？思い浮かぶことを教えてください。",
+            "なるほど。頭に浮かぶ色や景色があったら、教えてもらえますか？",
+            "ありがとう。この作品で一番表したいことは何かな？"
+        ];
+        const q = fallbacks[Math.min(step - 1, fallbacks.length - 1)];
+        history.push({ role: "assistant", content: q });
+        addAIMessage(q);
+    }
+    setInputDisabled(false);
+    input.focus();
+}
+
+function setInputDisabled(disabled) {
+    sendButton.disabled  = disabled;
+    skipButton.disabled  = disabled;
+    dontKnowBtn.disabled = disabled;
+    input.disabled       = disabled;
+}
+
+// ======================================
+// 送信処理（通常回答）
 // ======================================
 
 async function send() {
     const text = input.value.trim();
     if (text === "") return;
 
-    // ユーザー発言を記録
     memories.push(text);
     history.push({ role: "user", content: text });
     addMessage(text, "user");
     input.value = "";
-    sendButton.disabled = true;
-    input.disabled      = true;
+    lastSkipped = false;
 
     step++;
     updateProgress();
@@ -217,55 +318,88 @@ async function send() {
     updateArtworkPreview();
 
     if (step < TOTAL_STEPS) {
-
-        // AIに次の質問を生成させる
-        showTyping();
-        try {
-            const question = await fetchNextQuestion();
-            removeTyping();
-            history.push({ role: "assistant", content: question });
-            addMessage(question, "ai");
-        } catch (err) {
-            removeTyping();
-            // フォールバック：固定の質問
-            const fallbacks = [
-                "その時の気持ちをもう少し詳しく教えてもらえますか？",
-                "その感情を色で表すとしたら何色ですか？",
-                "その思い出の中で一番大切なものは何ですか？"
-            ];
-            const q = fallbacks[step % fallbacks.length];
-            history.push({ role: "assistant", content: q });
-            addMessage(q, "ai");
-        }
-
-        sendButton.disabled = false;
-        input.disabled      = false;
-        input.focus();
-
+        await proceedToNextQuestion(false);
     } else {
-
-        // 最終ステップ：締めの言葉（質問ではなく結びのメッセージ）
-        showTyping();
-        try {
-            const closing = await fetchClosingMessage();
-            removeTyping();
-            history.push({ role: "assistant", content: closing });
-            addMessage(closing, "ai");
-        } catch {
-            removeTyping();
-            addMessage("たくさん話してくれてありがとうございます。あなたの言葉が、世界にひとつだけの作品へと変わります。", "ai");
-        }
-
-        updateProgress();
-        finishWorkshop();
-
+        await showClosing();
     }
+}
+
+// ======================================
+// スキップ処理
+// ======================================
+
+async function skip() {
+    addMessage("（スキップ）", "user");
+    memories.push("（スキップ）");
+    history.push({ role: "user", content: "（この質問はスキップします）" });
+    lastSkipped = true;
+
+    step++;
+    updateProgress();
+    updateEmotion();
+    updateArtworkPreview();
+
+    if (step < TOTAL_STEPS) {
+        await proceedToNextQuestion(true);
+    } else {
+        await showClosing();
+    }
+}
+
+// ======================================
+// 「よく分からない」処理
+// ======================================
+
+async function dontKnow() {
+    addMessage("よく分からない…", "user");
+    memories.push("よく分からない");
+    history.push({ role: "user", content: "よく分からないので、もっとやさしい質問にしてください。" });
+    lastSkipped = false;
+
+    // stepは進めず、AIに言い換えた質問を再生成させる
+    setInputDisabled(true);
+    showTyping();
+    try {
+        const question = await fetchNextQuestion(false);
+        removeTyping();
+        history.push({ role: "assistant", content: question });
+        addAIMessage(question);
+    } catch {
+        removeTyping();
+        const fallback = "難しく考えなくて大丈夫です。ぱっと思い浮かんだ言葉を、何でも書いてみてください。";
+        history.push({ role: "assistant", content: fallback });
+        addAIMessage(fallback);
+    }
+    setInputDisabled(false);
+    input.focus();
+}
+
+// ======================================
+// 締めの言葉
+// ======================================
+
+async function showClosing() {
+    setInputDisabled(true);
+    showTyping();
+    try {
+        const closing = await fetchClosingMessage();
+        removeTyping();
+        history.push({ role: "assistant", content: closing });
+        addMessage(closing, "ai");
+    } catch {
+        removeTyping();
+        addMessage("たくさん話してくれてありがとうございます。あなたの言葉が、世界にひとつだけの作品へと変わります。", "ai");
+    }
+    updateProgress();
+    finishWorkshop();
 }
 
 sendButton.addEventListener("click", send);
 input.addEventListener("keypress", e => {
     if (e.key === "Enter") send();
 });
+skipButton.addEventListener("click", skip);
+dontKnowBtn.addEventListener("click", dontKnow);
 
 // ======================================
 // 初回：AIが最初の質問を生成
@@ -273,29 +407,26 @@ input.addEventListener("keypress", e => {
 
 (async () => {
 
-    sendButton.disabled = true;
-    input.disabled      = true;
+    setInputDisabled(true);
 
-    // 挨拶メッセージを先に表示
-    const greeting = `こんにちは。今日は<strong>「${selectedTheme}」</strong>をテーマに、あなた自身を映す作品を一緒に作ります。`;
+    // 挨拶メッセージ（全TOTAL_STEPS問の案内を含む）
+    const greeting = `こんにちは。今日は<strong>「${selectedTheme}」</strong>をテーマに、あなた自身を映す作品を一緒に作ります。<br><small style="color:#888;">全部で${TOTAL_STEPS}つの質問をします。答えにくい質問はスキップできます。</small>`;
     addMessage(greeting, "ai");
 
-    // AIが最初の質問を生成
     showTyping();
     try {
-        const firstQuestion = await fetchNextQuestion();
+        const firstQuestion = await fetchNextQuestion(false);
         removeTyping();
         history.push({ role: "assistant", content: firstQuestion });
-        addMessage(firstQuestion, "ai");
+        addAIMessage(firstQuestion);
     } catch {
         removeTyping();
-        const fallback = `「${selectedTheme}」というテーマを選んでくれましたね。このテーマを選んだ理由や、最初に浮かんだイメージを教えてください。`;
+        const fallback = `「${selectedTheme}」というテーマ、どんな気持ちが浮かびますか？難しく考えなくて大丈夫です。`;
         history.push({ role: "assistant", content: fallback });
-        addMessage(fallback, "ai");
+        addAIMessage(fallback);
     }
 
-    sendButton.disabled = false;
-    input.disabled      = false;
+    setInputDisabled(false);
     input.focus();
 
 })();

@@ -59,18 +59,18 @@ LEFT
 <div class="progressCard">
 
 <div class="progressTitle">
-
-創作の進み具合
-
-<span id="progressValue">0%</span>
-
+    <span>対話の進み具合</span>
+    <span id="progressValue">0 / 5</span>
 </div>
 
 <div class="progressBar">
     <div class="progressFill"></div>
 </div>
 
-<div class="phaseLabel" id="phaseLabel">ステップ 1 ／ 感情を見つける</div>
+<div class="progressMeta">
+    <div class="phaseLabel" id="phaseLabel">ステップ 1 ／ 今の気持ち</div>
+    <div id="stepDots" class="stepDots"></div>
+</div>
 
 </div>
 
@@ -86,15 +86,16 @@ LEFT
 <input
 type="text"
 id="userInput"
-placeholder="あなたの想いを入力してください..."
+placeholder="思ったことを自由に書いてください..."
 >
 
-<button id="sendButton">
+<button id="sendButton">送信</button>
 
-送信
+</div>
 
-</button>
-
+<div class="inputActions">
+    <button id="skipButton" class="inputActionBtn inputActionBtn--skip">この質問をスキップ</button>
+    <button id="dontKnowBtn" class="inputActionBtn inputActionBtn--dontknow">よく分からない</button>
 </div>
 
 </div>
