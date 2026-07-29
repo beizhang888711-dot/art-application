@@ -151,6 +151,51 @@ ${styleInstruction}
 });
 
 // ======================================
+// 画像生成エンドポイント
+// ======================================
+app.post("/proxy/generate-image", async (req, res) => {
+
+    const { prompt } = req.body;
+
+    if (!prompt) {
+        return res.status(400).json({ error: "prompt が指定されていません" });
+    }
+
+    console.log("画像生成プロンプト:", prompt.slice(0, 100));
+
+    try {
+        const response = await fetch(`${ICA_ENDPOINT}/images/generations`, {
+            method: "POST",
+            headers: {
+                "Content-Type":  "application/json",
+                "Authorization": `Bearer ${ICA_API_KEY}`
+            },
+            body: JSON.stringify({
+                model:   "dall-e-3",
+                prompt:  prompt,
+                n:       1,
+                size:    "1024x1024",
+                response_format: "b64_json"
+            })
+        });
+
+        const data = await response.json();
+        console.log("画像APIレスポンス status:", response.status);
+
+        if (!response.ok) {
+            throw new Error(data.error?.message || `API error: ${response.status}`);
+        }
+
+        // data.data[0] に b64_json が入っている
+        res.json(data.data[0]);
+
+    } catch (err) {
+        console.error("画像生成エラー:", err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// ======================================
 // ワークショップ動的質問生成エンドポイント
 // ======================================
 

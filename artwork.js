@@ -346,60 +346,7 @@ canvas.style.transform = "scale(0.92)";
         artworkStructured
     );
 
-    // ★追加
-    console.log("AI =", ai);
-
-    const image = await fetchGeneratedImage(ai.prompt);
-
-console.log("image =", image);
-console.log("b64 =", image.b64_json);
-
-if (image.b64_json) {
-
-    const img = new Image();
-
-    img.onload = () => {
-        console.log("✅ 画像読み込み成功");
-    };
-
-    img.onerror = (e) => {
-        console.error("❌ 画像読み込み失敗", e);
-    };
-
-    img.src = "data:image/png;base64," + image.b64_json;
-
-    await new Promise(resolve => {
-        img.onload = () => {
-            console.log("✅ 画像読み込み成功");
-            resolve();
-        };
-    });
-
-    ctx.clearRect(0, 0, W, H);
-
-    ctx.drawImage(img, 0, 0, W, H);
-
-    console.log("✅ drawImage完了");
-}
-
-    // タイトル
-if(ai.title){
-    aiTitle = ai.title;
-    document.getElementById("artTitle").textContent = ai.title;
-}
-
-// リフレクション
-if(ai.reflection){
-    aiReflection = ai.reflection;
-    document.getElementById("reflectionText").textContent = ai.reflection;
-}
-
-// ←ここで終わる
-return;
-
         // ─── 背景色の決定 ───
-        // 新形式: artisticVision.colorPalette[0] を背景に使う
-        // 旧形式フォールバック: ai.background
         let bgColor = "#0d0d1a";
         if (ai.artisticVision?.colorPalette?.length > 0) {
             bgColor = ai.artisticVision.colorPalette[0].color ?? bgColor;
@@ -525,24 +472,6 @@ async function runAdjust(instruction) {
 
     try {
         const ai = await fetchAIParams(memories, conversationHistory, instruction, artworkStructured);
-        console.log("AI =", ai);
-        const image = await fetchGeneratedImage(ai.prompt);
-        // OpenAI画像をCanvasへ描画
-if (image.b64_json) {
-
-    const img = new Image();
-
-    img.src = "data:image/png;base64," + image.b64_json;
-
-    await new Promise(resolve => {
-        img.onload = resolve;
-    });
-
-    ctx.clearRect(0, 0, W, H);
-
-    ctx.drawImage(img, 0, 0, W, H);
-
-}
 
         // 背景
         let bgColor = "#0d0d1a";
