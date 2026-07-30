@@ -662,31 +662,34 @@ body{
     border-radius: 99px;
 }
 
-/* 選択作品1件のカード */
+/* 選択作品1件のカード（画像左・説明右の横並び） */
 .shareConfirmed__item {
     position: relative;
     flex-shrink: 0;
-    width: 260px;
+    width: 520px;
     background: #f7f8fa;
     border: 2px solid #6c8cff;
     border-radius: 14px;
     overflow: hidden;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
 }
 
 .shareConfirmed__img {
-    width: 100%;
+    width: 220px;
+    flex-shrink: 0;
     aspect-ratio: 1 / 1;
     object-fit: cover;
     display: block;
 }
 
 .shareConfirmed__body {
-    padding: 12px 14px 14px;
+    flex: 1;
+    min-width: 0;
+    padding: 16px 18px 16px;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 8px;
 }
 
 .shareConfirmed__label {
