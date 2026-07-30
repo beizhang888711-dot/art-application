@@ -31,10 +31,10 @@ const searchInput       = document.getElementById("searchInput");
 const sortSelect        = document.getElementById("sortSelect");
 const shareBanner       = document.getElementById("shareBanner");
 const shareConfirmed    = document.getElementById("shareConfirmed");
+const shareConfirmedList= document.getElementById("shareConfirmedList");
 const enterShareModeBtn = document.getElementById("enterShareModeBtn");
 const shareCancelBtn    = document.getElementById("shareCancelBtn");
 const shareResetBtn     = document.getElementById("shareResetBtn");
-const shareReasonSaveBtn= document.getElementById("shareReasonSaveBtn");
 
 document.getElementById("closeModal").onclick = () => { modal.style.display = "none"; };
 modal.onclick = e => { if (e.target === modal) modal.style.display = "none"; };
@@ -43,10 +43,10 @@ modal.onclick = e => { if (e.target === modal) modal.style.display = "none"; };
 // 状態
 // ──────────────────────────────────────
 
-let gallery      = JSON.parse(localStorage.getItem("gallery")) || [];
-let shareMode    = false;
-let activeTheme  = "favorite";
-let selectedWork = null; // 発表作品として確定した gallery エントリ
+let gallery       = JSON.parse(localStorage.getItem("gallery")) || [];
+let shareMode     = false;
+let activeTheme   = "favorite";
+let selectedWorks = new Set(); // artworkId の Set（複数選択）
 
 // ──────────────────────────────────────
 // 発表モード ON / OFF
@@ -54,18 +54,18 @@ let selectedWork = null; // 発表作品として確定した gallery エント�
 
 function enterShareMode() {
     shareMode = true;
-    shareBanner.style.display    = "block";
+    shareBanner.style.display       = "block";
     enterShareModeBtn.style.display = "none";
     document.getElementById("galleryHeader").querySelector("p").textContent =
-        "発表したい作品をタップして選んでください";
+        "発表したい作品をタップして選んでください（複数選択可）";
     renderGallery();
 }
 
 function exitShareMode() {
-    shareMode    = false;
-    selectedWork = null;
-    shareBanner.style.display      = "none";
-    shareConfirmed.style.display   = "none";
+    shareMode     = false;
+    selectedWorks = new Set();
+    shareBanner.style.display       = "none";
+    shareConfirmed.style.display    = "none";
     enterShareModeBtn.style.display = "inline-flex";
     document.getElementById("galleryHeader").querySelector("p").textContent =
         "あなたがAIと共創した作品一覧";
@@ -79,8 +79,7 @@ document.getElementById("shareThemes").addEventListener("click", e => {
     document.querySelectorAll(".shareThemeBtn").forEach(b => b.classList.remove("shareThemeBtn--active"));
     btn.classList.add("shareThemeBtn--active");
     activeTheme = btn.dataset.theme;
-    // 確定済みならテーマ表示を更新
-    if (selectedWork) {
+    if (selectedWorks.size > 0) {
         document.getElementById("shareConfirmedTheme").textContent = SHARE_THEMES[activeTheme];
         persistShareSelection();
     }
@@ -90,14 +89,9 @@ enterShareModeBtn.addEventListener("click", enterShareMode);
 shareCancelBtn.addEventListener("click", exitShareMode);
 
 shareResetBtn.addEventListener("click", () => {
-    selectedWork = null;
+    selectedWorks = new Set();
     shareConfirmed.style.display = "none";
     renderGallery();
-});
-
-shareReasonSaveBtn.addEventListener("click", () => {
-    persistShareSelection();
-    showFlash("メモを保存しました");
 });
 
 // ──────────────────────────────────────
@@ -105,14 +99,12 @@ shareReasonSaveBtn.addEventListener("click", () => {
 // ──────────────────────────────────────
 
 function persistShareSelection() {
-    if (!selectedWork) return;
-    const reason = document.getElementById("shareReason").value.trim();
+    const works = gallery.filter(w => w.artworkId && selectedWorks.has(w.artworkId));
     localStorage.setItem("shareSelection", JSON.stringify({
-        artworkId:   selectedWork.artworkId || null,
-        title:       selectedWork.title,
+        artworkIds:  [...selectedWorks],
+        titles:      works.map(w => w.title),
         theme:       activeTheme,
         themeLabel:  SHARE_THEMES[activeTheme],
-        reason:      reason,
         selectedAt:  new Date().toISOString()
     }));
 }
@@ -143,32 +135,28 @@ function renderGallery() {
     if (sortSelect.value === "new") list.reverse();
 
     // 発表モード中は選択済みを先頭に
-    if (shareMode && selectedWork) {
-        list.sort((a, b) =>
-            (a.artworkId === selectedWork.artworkId ? -1 :
-             b.artworkId === selectedWork.artworkId ?  1 : 0)
-        );
+    if (shareMode && selectedWorks.size > 0) {
+        list.sort((a, b) => {
+            const asel = a.artworkId && selectedWorks.has(a.artworkId) ? 0 : 1;
+            const bsel = b.artworkId && selectedWorks.has(b.artworkId) ? 0 : 1;
+            return asel - bsel;
+        });
     }
 
-    list.forEach((work, index) => {
-        // artworkId が null 同士で全件一致するのを防ぐ
-        const isSelected = shareMode && selectedWork &&
-            selectedWork.artworkId != null &&
-            selectedWork.artworkId === work.artworkId;
-        const isDimmed = shareMode && selectedWork && !isSelected;
+    list.forEach(work => {
+        const isSelected = shareMode && work.artworkId != null && selectedWorks.has(work.artworkId);
 
         const card = document.createElement("div");
         card.className = "galleryCard glass" +
             (shareMode   ? " galleryCard--shareMode" : "") +
-            (isSelected  ? " galleryCard--selected"  : "") +
-            (isDimmed    ? " galleryCard--dimmed"    : "");
+            (isSelected  ? " galleryCard--selected"  : "");
 
         const keywords = work.keywords.map(k =>
             `<span class="keyword">${k}</span>`
         ).join("");
 
         const selectedBadge = isSelected
-            ? `<div class="galleryCard__selectedBadge">✓ 発表作品</div>` : "";
+            ? `<div class="galleryCard__selectedBadge">✓ 選択中</div>` : "";
 
         card.innerHTML = `
             ${selectedBadge}
@@ -180,7 +168,7 @@ function renderGallery() {
                 <div class="keywordArea">${keywords}</div>
                 <div class="cardButtons">
                     ${shareMode
-                        ? `<button class="mainButton selectShareBtn">${isSelected ? "✓ 選択済み" : "この作品を発表する"}</button>`
+                        ? `<button class="mainButton selectShareBtn">${isSelected ? "✓ 選択解除" : "この作品を選ぶ"}</button>`
                         : `<button class="mainButton detailBtn">👁 詳細</button>
                            <button class="subButton deleteBtn">🗑 削除</button>`
                     }
@@ -193,7 +181,6 @@ function renderGallery() {
         if (delBtn) {
             delBtn.onclick = () => {
                 if (!confirm("削除しますか？")) return;
-                // gallery 配列上の実インデックスを artworkId で特定
                 const realIdx = gallery.findIndex(w => w.artworkId === work.artworkId);
                 if (realIdx !== -1) gallery.splice(realIdx, 1);
                 localStorage.setItem("gallery", JSON.stringify(gallery));
@@ -203,26 +190,22 @@ function renderGallery() {
 
         // 詳細
         const detBtn = card.querySelector(".detailBtn");
-        if (detBtn) {
-            detBtn.onclick = () => openModal(work);
-        }
+        if (detBtn) detBtn.onclick = () => openModal(work);
 
-        // 発表作品選択
+        // 発表作品トグル選択
         const selBtn = card.querySelector(".selectShareBtn");
-        if (selBtn) {
-            selBtn.onclick = () => confirmShareWork(work);
-        }
+        if (selBtn) selBtn.onclick = () => toggleShareWork(work);
 
         galleryGrid.appendChild(card);
     });
 }
 
 // ──────────────────────────────────────
-// 発表作品を確定する
+// 発表作品をトグル選択する
 // ──────────────────────────────────────
 
-function confirmShareWork(work) {
-    // artworkId がない古い作品にはその場で付与して gallery に書き戻す
+function toggleShareWork(work) {
+    // artworkId がない古い作品にはその場で付与
     if (!work.artworkId) {
         work.artworkId = "art-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 7);
         const idx = gallery.findIndex(w => w.image === work.image);
@@ -231,30 +214,60 @@ function confirmShareWork(work) {
             localStorage.setItem("gallery", JSON.stringify(gallery));
         }
     }
-    selectedWork = work;
 
-    // 確定バナーを更新
-    document.getElementById("shareConfirmedImg").src             = work.image;
-    document.getElementById("shareConfirmedTitle").textContent   = work.title;
-    document.getElementById("shareConfirmedTheme").textContent   = SHARE_THEMES[activeTheme];
-    document.getElementById("shareConfirmedReflection").textContent = work.reflection || "";
+    if (selectedWorks.has(work.artworkId)) {
+        selectedWorks.delete(work.artworkId);
+    } else {
+        selectedWorks.add(work.artworkId);
+    }
 
-    // キーワード
-    const kwContainer = document.getElementById("shareConfirmedKeywords");
-    kwContainer.innerHTML = (work.keywords || [])
-        .map(k => `<span class="keyword">${k}</span>`).join("");
-    document.getElementById("shareReason").value = (() => {
-        // 保存済みの理由があれば復元
-        try {
-            const s = JSON.parse(localStorage.getItem("shareSelection") || "{}");
-            return (s.artworkId === work.artworkId) ? (s.reason || "") : "";
-        } catch { return ""; }
-    })();
+    if (selectedWorks.size === 0) {
+        shareConfirmed.style.display = "none";
+    } else {
+        renderShareConfirmed();
+        shareConfirmed.style.display = "block";
+    }
 
-    shareConfirmed.style.display = "block";
-    shareConfirmed.scrollIntoView({ behavior: "smooth", block: "nearest" });
     persistShareSelection();
-    renderGallery(); // バッジ・ボタン状態を更新
+    renderGallery();
+}
+
+// ──────────────────────────────────────
+// 確定バナーの中身を描画
+// ──────────────────────────────────────
+
+function renderShareConfirmed() {
+    document.getElementById("shareConfirmedTheme").textContent = SHARE_THEMES[activeTheme];
+
+    const selected = gallery.filter(w => w.artworkId && selectedWorks.has(w.artworkId));
+    shareConfirmedList.innerHTML = "";
+
+    selected.forEach(work => {
+        const item = document.createElement("div");
+        item.className = "shareConfirmed__item";
+
+        const kw = (work.keywords || []).map(k => `<span class="keyword">${k}</span>`).join("");
+
+        item.innerHTML = `
+            <img class="shareConfirmed__img" src="${work.image}" alt="${work.title}">
+            <div class="shareConfirmed__body">
+                <p class="shareConfirmed__title">${work.title}</p>
+                <p class="shareConfirmed__reflection">${work.reflection || ""}</p>
+                <div class="shareConfirmed__keywords">${kw}</div>
+            </div>
+            <button class="shareConfirmed__removeBtn" aria-label="選択解除">×</button>
+        `;
+
+        item.querySelector(".shareConfirmed__removeBtn").onclick = () => {
+            selectedWorks.delete(work.artworkId);
+            if (selectedWorks.size === 0) shareConfirmed.style.display = "none";
+            else renderShareConfirmed();
+            persistShareSelection();
+            renderGallery();
+        };
+
+        shareConfirmedList.appendChild(item);
+    });
 }
 
 // ──────────────────────────────────────
@@ -262,12 +275,12 @@ function confirmShareWork(work) {
 // ──────────────────────────────────────
 
 function openModal(work) {
-    modal.style.display     = "flex";
-    modalTitle.textContent  = work.title;
-    modalImage.src          = work.image;
+    modal.style.display         = "flex";
+    modalTitle.textContent      = work.title;
+    modalImage.src              = work.image;
     modalReflection.textContent = work.reflection;
-    modalDate.textContent   = work.createdAt;
-    modalKeywords.innerHTML = "";
+    modalDate.textContent       = work.createdAt;
+    modalKeywords.innerHTML     = "";
     work.keywords.forEach(k => {
         const tag = document.createElement("span");
         tag.className   = "keyword";
@@ -302,13 +315,11 @@ searchInput.addEventListener("input",  renderGallery);
 sortSelect.addEventListener("change",  renderGallery);
 
 // ──────────────────────────────────────
-// 初期表示 — artwork.js から galleryMode=share で飛んできた場合は自動で発表モードへ
+// 初期表示
 // ──────────────────────────────────────
 
 if (sessionStorage.getItem("galleryMode") === "share") {
     sessionStorage.removeItem("galleryMode");
-    // DOM が揃ってから呼ぶ
-    window.addEventListener("DOMContentLoaded", () => {}, { once: true });
     enterShareMode();
 } else {
     renderGallery();
