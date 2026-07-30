@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>アンケートデータ管理 | Art Reflection</title>
+<link rel="stylesheet" href="artwork.css">
+<style>
+    body { background: #0d0d1a; color: #e5e7eb; font-family: -apple-system, "Segoe UI", system-ui, sans-serif; }
+    .adminContainer { max-width: 900px; margin: 0 auto; padding: 32px 20px 80px; }
+    .adminHeader { margin-bottom: 32px; }
+    .adminHeader h1 { font-size: 22px; font-weight: 600; margin: 0 0 6px; }
+    .adminHeader p  { color: #9ca3af; font-size: 14px; margin: 0; }
+    .adminSection   { background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.10); border-radius: 12px; padding: 24px; margin-bottom: 24px; }
+    .adminSection h2 { font-size: 15px; font-weight: 600; margin: 0 0 16px; color: #c4b5fd; }
+    .statGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; margin-bottom: 4px; }
+    .statCard  { background: rgba(255,255,255,.07); border-radius: 8px; padding: 14px 16px; text-align: center; }
+    .statCard__val  { font-size: 28px; font-weight: 700; color: #a78bfa; }
+    .statCard__lbl  { font-size: 12px; color: #9ca3af; margin-top: 4px; }
+    .questionRow { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; font-size: 14px; }
+    .questionRow__lbl { flex: 1; color: #d1d5db; }
+    .barTrack { flex: 2; height: 10px; background: rgba(255,255,255,.10); border-radius: 99px; overflow: hidden; }
+    .barFill  { height: 100%; background: linear-gradient(90deg, #7c3aed, #a78bfa); border-radius: 99px; transition: width .6s; }
+    .questionRow__avg { width: 34px; text-align: right; color: #c4b5fd; font-weight: 600; }
+    .sessionTable { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .sessionTable th { text-align: left; color: #9ca3af; padding: 6px 8px; border-bottom: 1px solid rgba(255,255,255,.08); }
+    .sessionTable td { padding: 6px 8px; border-bottom: 1px solid rgba(255,255,255,.05); vertical-align: top; word-break: break-all; }
+    .sessionTable tr:hover td { background: rgba(255,255,255,.03); }
+    .emotionPair { font-size: 12px; color: #9ca3af; }
+    .emotionPair strong { color: #e5e7eb; }
+    .freeRow { font-size: 12px; color: #d1d5db; max-width: 260px; }
+    .btnRow  { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+    .adminBtn { padding: 8px 18px; border-radius: 8px; border: none; cursor: pointer; font-size: 14px; font-weight: 500; }
+    .adminBtn--primary { background: #7c3aed; color: #fff; }
+    .adminBtn--primary:hover { background: #6d28d9; }
+    .adminBtn--danger  { background: transparent; color: #f87171; border: 1px solid #f87171; }
+    .adminBtn--danger:hover  { background: rgba(248,113,113,.10); }
+    .emptyMsg { color: #6b7280; font-size: 14px; text-align: center; padding: 32px 0; }
+    .backLink { display: inline-block; color: #9ca3af; font-size: 13px; margin-bottom: 20px; text-decoration: none; }
+    .backLink:hover { color: #e5e7eb; }
+    .tag { display: inline-block; font-size: 11px; padding: 2px 7px; border-radius: 99px; background: rgba(167,139,250,.15); color: #c4b5fd; font-weight: 500; }
+    .sessionCompare { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+    .sessionCompareCard { background: rgba(255,255,255,.05); border-radius: 8px; padding: 12px 14px; font-size: 13px; }
+    .sessionCompareCard h3 { font-size: 12px; color: #9ca3af; margin: 0 0 8px; word-break: break-all; }
+    .scBar { display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 12px; }
+    .scBar__lbl { color: #d1d5db; }
+    .scBar__val { color: #a78bfa; font-weight: 600; }
+    .noData { color: #6b7280; font-style: italic; font-size: 13px; }
+    .privacyNote { font-size: 12px; color: #6b7280; line-height: 1.7; }
+    .privacyNote strong { color: #9ca3af; }
+</style>
+</head>
+<body>
+<div class="adminContainer">
+
+    <a class="backLink" href="artwork.html">← 作品ページへ戻る</a>
+
+    <div class="adminHeader">
+        <h1>アンケートデータ管理</h1>
+        <p>ブラウザ内に保存されたアンケート回答の集計・閲覧・エクスポートができます。</p>
+    </div>
+
+    <!-- プライバシーノート -->
+    <div class="adminSection">
+        <h2>🔒 保存データについて</h2>
+        <p class="privacyNote">
+            このページに表示されるデータはすべて<strong>お使いのブラウザ（localStorage）にのみ保存</strong>されており、外部サーバーへの送信は行っていません。<br>
+            個人を特定する情報（氏名・連絡先等）は収集していません。作品画像・会話内容も保存されません。<br>
+            データを削除するには、下の「全回答データを削除する」ボタンを使用してください。
+        </p>
+    </div>
+
+    <!-- 集計サマリー -->
+    <div class="adminSection" id="summarySection">
+        <h2>📊 全体集計</h2>
+        <div class="statGrid" id="statGrid"></div>
+    </div>
+
+    <!-- 設問別平均スコア -->
+    <div class="adminSection">
+        <h2>📈 設問別 平均スコア</h2>
+        <div id="questionBars"></div>
+    </div>
+
+    <!-- セッション別比較 -->
+    <div class="adminSection">
+        <h2>🗂 ワークショップセッション別集計</h2>
+        <div class="sessionCompare" id="sessionCompare"></div>
+    </div>
+
+    <!-- 感情変化一覧 -->
+    <div class="adminSection">
+        <h2>💬 制作前後の感情変化（記録あり分）</h2>
+        <div id="emotionList"></div>
+    </div>
+
+    <!-- 自由記述 -->
+    <div class="adminSection">
+        <h2>📝 自由記述一覧</h2>
+        <div id="freeTextList"></div>
+    </div>
+
+    <!-- 全件テーブル -->
+    <div class="adminSection">
+        <h2>📋 全回答一覧（匿名）</h2>
+        <div class="btnRow">
+            <button class="adminBtn adminBtn--primary" id="csvBtn">CSV ダウンロード</button>
+            <button class="adminBtn adminBtn--danger"  id="deleteAllBtn">全回答データを削除する</button>
+        </div>
+        <div style="overflow-x:auto;">
+            <table class="sessionTable" id="allTable">
+                <thead>
+                    <tr>
+                        <th>日時</th>
+                        <th>セッション</th>
+                        <th>作品ID</th>
+                        <th>表現</th><th>愛着</th><th>関与</th><th>AI助け</th><th>再挑戦</th>
+                        <th>感情(前)</th><th>感情(後)</th>
+                        <th>自由記述</th>
+                    </tr>
+                </thead>
+                <tbody id="allTableBody"></tbody>
+            </table>
+        </div>
+        <p id="tableEmpty" class="emptyMsg" style="display:none;">回答データがありません。</p>
+    </div>
+
+</div>
+
+<footer class="siteFooter">
+    <p class="copyright">Copyright &copy; 2026 Art Reflection 研究会. All rights reserved.</p>
+</footer>
+
+<script src="survey-admin.js"></script>
+</body>
+</html>

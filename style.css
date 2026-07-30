@@ -1426,6 +1426,21 @@ line-height:2;
 
 }
 
+.introModal__countdown{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-width:26px;
+    height:26px;
+    margin-left:8px;
+    background:rgba(255,255,255,.25);
+    border-radius:50%;
+    font-size:13px;
+    font-weight:700;
+    vertical-align:middle;
+    transition:background .3s;
+}
+
 @media(max-width:600px){
 
     .introModal__card{

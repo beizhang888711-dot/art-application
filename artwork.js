@@ -660,6 +660,26 @@ applyAdjustBtn.addEventListener("click", () => {
 const saveGalleryBtn = document.getElementById("saveGalleryBtn");
 const intentModal    = document.getElementById("intentModal");
 const surveyModal    = document.getElementById("surveyModal");
+const consentModal   = document.getElementById("consentModal");
+
+// ── セッションIDを生成（ワークショップ単位）──
+// localStorage に永続化し、artwork.html を開くたびに同じセッションを使う
+function getOrCreateSessionId() {
+    let sid = localStorage.getItem("workshopSessionId");
+    if (!sid) {
+        sid = "ws-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 7);
+        localStorage.setItem("workshopSessionId", sid);
+    }
+    return sid;
+}
+
+// ── 作品ごとの匿名ID（doSave時に生成して返す）──
+function makeArtworkId() {
+    return "art-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 7);
+}
+
+let currentArtworkId  = null; // doSave で確定
+const workshopSession = getOrCreateSessionId();
 
 // ── 実際にgalleryに保存する関数 ──
 function doSave(intent) {
@@ -671,25 +691,75 @@ function doSave(intent) {
         return;
     }
 
+    currentArtworkId = makeArtworkId();
+
     gallery.push({
-        title:      intent.title || aiTitle,
-        image:      image,
-        reflection: aiReflection,
-        keywords:   memories,
-        createdAt:  new Date().toLocaleDateString("ja-JP"),
-        intent:     intent   // 制作意図データを一緒に保存
+        artworkId:      currentArtworkId,
+        workshopSession: workshopSession,
+        title:          intent.title || aiTitle,
+        image:          image,
+        reflection:     aiReflection,
+        keywords:       memories,
+        createdAt:      new Date().toLocaleDateString("ja-JP"),
+        intent:         intent
     });
 
     localStorage.setItem("gallery", JSON.stringify(gallery));
     saveGalleryBtn.textContent = "✅ 保存しました";
     saveGalleryBtn.disabled    = true;
+
+    // 保存後：「もう一作品」「発表を選ぶ」ボタンを表示
+    const makeAnotherBtn = document.getElementById("makeAnotherBtn");
+    const goShareBtn     = document.getElementById("goShareBtn");
+    if (makeAnotherBtn) makeAnotherBtn.style.display = "inline-flex";
+    if (goShareBtn)     goShareBtn.style.display     = "inline-flex";
+}
+
+// ── 「もう一作品つくる」── セッションIDを保持したまま workshop へ戻る
+const makeAnotherBtn = document.getElementById("makeAnotherBtn");
+if (makeAnotherBtn) {
+    makeAnotherBtn.onclick = () => {
+        // workshopSessionId はそのまま残す（同一セッションとして記録するため）
+        // 会話・回答のみリセット
+        localStorage.removeItem("reflectionData");
+        localStorage.removeItem("conversationHistory");
+        localStorage.removeItem("artworkStructured");
+        window.location.href = "workshop.html";
+    };
+}
+
+// ── 「発表する作品を選ぶ」── ギャラリーを発表モードで開く
+const goShareBtn = document.getElementById("goShareBtn");
+if (goShareBtn) {
+    goShareBtn.onclick = () => {
+        sessionStorage.setItem("galleryMode", "share");
+        window.location.href = "gallery.html";
+    };
+}
+
+// ── 同意モーダルを介してアンケートへ進む ──
+function openConsentThenSurvey() {
+    consentModal.style.display = "flex";
+
+    document.getElementById("consentAgreeBtn").onclick = () => {
+        consentModal.style.display = "none";
+        openSurvey();
+    };
+
+    document.getElementById("consentSkipBtn").onclick = () => {
+        consentModal.style.display = "none";
+    };
 }
 
 // ── アンケートモーダルを開く ──
 function openSurvey() {
     surveyModal.style.display = "flex";
 
-    // スケールボタンのトグル
+    // スケールボタンのトグル（重複登録防止のためonce相当でリセット）
+    surveyModal.querySelectorAll(".surveyQ").forEach(q => {
+        const newQ = q.cloneNode(true);
+        q.parentNode.replaceChild(newQ, q);
+    });
     surveyModal.querySelectorAll(".surveyQ").forEach(q => {
         q.querySelectorAll(".scale-btn").forEach(btn => {
             btn.addEventListener("click", () => {
@@ -700,22 +770,38 @@ function openSurvey() {
     });
 
     // 送信
-    document.getElementById("surveySubmitBtn").onclick = () => {
+    document.getElementById("surveySubmitBtn").onclick = async () => {
         const answers = {};
         surveyModal.querySelectorAll(".surveyQ").forEach(q => {
             const key = q.dataset.key;
             const sel = q.querySelector(".scale-btn--selected");
             answers[key] = sel ? Number(sel.dataset.val) : null;
         });
-        answers.freeText = document.getElementById("surveyFreeText").value.trim();
-        answers.savedAt  = new Date().toISOString();
+        answers.freeText        = document.getElementById("surveyFreeText").value.trim();
+        answers.emotionBefore   = (document.getElementById("emotionBefore")?.value  || "").trim();
+        answers.emotionAfter    = (document.getElementById("emotionAfter")?.value   || "").trim();
+        answers.savedAt         = new Date().toISOString();
+        answers.artworkId       = currentArtworkId  || null;
+        answers.workshopSession = workshopSession;
 
-        const surveys = JSON.parse(localStorage.getItem("surveys")) || [];
-        surveys.push(answers);
-        localStorage.setItem("surveys", JSON.stringify(surveys));
+        // ── localStorage（オフライン用バックアップ）──
+        const localSurveys = JSON.parse(localStorage.getItem("surveys")) || [];
+        localSurveys.push(answers);
+        localStorage.setItem("surveys", JSON.stringify(localSurveys));
+
+        // ── Supabase へ送信（非同期・失敗してもUIはブロックしない）──
+        try {
+            await fetch("/api/surveys", {
+                method:  "POST",
+                headers: { "Content-Type": "application/json" },
+                body:    JSON.stringify(answers)
+            });
+        } catch (err) {
+            console.warn("アンケートのサーバー送信に失敗しました（ローカルには保存済）:", err);
+        }
 
         surveyModal.style.display = "none";
-        alert("ご回答ありがとうございました。");
+        showToast("ご回答ありがとうございました。");
     };
 
     document.getElementById("surveySkipBtn").onclick = () => {
@@ -751,8 +837,9 @@ intentModal.addEventListener("click", e => {
 // ── Escキーで閉じる ──
 document.addEventListener("keydown", e => {
     if (e.key === "Escape") {
-        if (intentModal.style.display === "flex") closeIntentModal();
-        if (surveyModal.style.display  === "flex") surveyModal.style.display = "none";
+        if (intentModal.style.display  === "flex") closeIntentModal();
+        if (consentModal.style.display === "flex") consentModal.style.display = "none";
+        if (surveyModal.style.display  === "flex") surveyModal.style.display  = "none";
     }
 });
 
@@ -773,14 +860,14 @@ document.getElementById("intentSaveBtn").onclick = () => {
     };
     intentModal.style.display = "none";
     doSave(intent);
-    openSurvey();
+    openConsentThenSurvey();
 };
 
 // ── 制作意図モーダル：「スキップして保存」──
 document.getElementById("intentSkipBtn").onclick = () => {
     intentModal.style.display = "none";
     doSave({ title: aiTitle });
-    openSurvey();
+    openConsentThenSurvey();
 };
 
 // ======================================

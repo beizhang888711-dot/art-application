@@ -529,3 +529,237 @@ body{
     letter-spacing:.02em;
 }
 
+
+/* ==========================================
+   発表モード バナー
+========================================== */
+
+.shareBanner {
+    position: sticky;
+    top: 0;
+    z-index: 200;
+    background: linear-gradient(135deg, #3b2d8a, #5b42c0);
+    color: #fff;
+    padding: 14px 24px;
+    box-shadow: 0 4px 20px rgba(0,0,0,.18);
+}
+
+.shareBanner__inner {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    max-width: 1300px;
+    margin: 0 auto;
+}
+
+.shareBanner__label {
+    font-size: 11px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    opacity: .75;
+    margin: 0;
+}
+
+.shareBanner__desc {
+    font-size: 15px;
+    font-weight: 600;
+    margin: 2px 0 0;
+}
+
+.shareBanner__left {
+    flex-shrink: 0;
+}
+
+.shareBanner__themes {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    flex: 1;
+}
+
+.shareThemeBtn {
+    padding: 7px 14px;
+    border-radius: 99px;
+    border: 1.5px solid rgba(255,255,255,.4);
+    background: transparent;
+    color: #fff;
+    font-size: 13px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background .15s, border-color .15s;
+}
+
+.shareThemeBtn:hover {
+    background: rgba(255,255,255,.15);
+}
+
+.shareThemeBtn--active {
+    background: rgba(255,255,255,.25);
+    border-color: #fff;
+    font-weight: 600;
+}
+
+.shareBanner__cancel {
+    margin-left: auto;
+    flex-shrink: 0;
+    padding: 7px 16px;
+    border-radius: 99px;
+    border: 1.5px solid rgba(255,255,255,.4);
+    background: transparent;
+    color: rgba(255,255,255,.8);
+    font-size: 13px;
+    cursor: pointer;
+    transition: background .15s;
+}
+
+.shareBanner__cancel:hover {
+    background: rgba(255,255,255,.12);
+}
+
+/* ==========================================
+   発表作品 確定バナー
+========================================== */
+
+.shareConfirmed {
+    background: #fff;
+    border-top: 4px solid #6c8cff;
+    padding: 20px 32px;
+    box-shadow: 0 6px 24px rgba(108,140,255,.15);
+}
+
+.shareConfirmed__inner {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    flex-wrap: wrap;
+    max-width: 1300px;
+    margin: 0 auto;
+}
+
+.shareConfirmed__img {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 12px;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(0,0,0,.12);
+}
+
+.shareConfirmed__body {
+    flex: 1;
+    min-width: 200px;
+}
+
+.shareConfirmed__label {
+    font-size: 11px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: #6c8cff;
+    font-weight: 700;
+    margin: 0 0 4px;
+}
+
+.shareConfirmed__title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1b2a41;
+    margin: 0 0 4px;
+}
+
+.shareConfirmed__theme {
+    font-size: 14px;
+    color: #555;
+    margin: 0 0 12px;
+}
+
+.shareConfirmed__reasonWrap {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 12px;
+}
+
+.shareConfirmed__reasonWrap label {
+    font-size: 12px;
+    color: #777;
+}
+
+.shareConfirmed__reasonWrap textarea {
+    padding: 8px 12px;
+    border: 1.5px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 14px;
+    resize: vertical;
+    outline: none;
+    transition: border-color .15s;
+    font-family: inherit;
+}
+
+.shareConfirmed__reasonWrap textarea:focus {
+    border-color: #6c8cff;
+}
+
+.shareConfirmed__actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* ==========================================
+   ギャラリーカード 発表モード
+========================================== */
+
+.galleryCard--shareMode {
+    cursor: pointer;
+    position: relative;
+}
+
+.galleryCard--shareMode:hover {
+    transform: translateY(-6px) scale(1.015);
+    box-shadow: 0 16px 40px rgba(108,140,255,.25);
+}
+
+.galleryCard--selected {
+    outline: 3px solid #6c8cff;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 6px rgba(108,140,255,.15), 0 12px 35px rgba(0,0,0,.10);
+}
+
+.galleryCard__selectedBadge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: #6c8cff;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 99px;
+    z-index: 10;
+    box-shadow: 0 2px 8px rgba(108,140,255,.4);
+}
+
+/* ==========================================
+   フラッシュメッセージ
+========================================== */
+
+.galleryFlash {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1b2a41;
+    color: #fff;
+    padding: 12px 24px;
+    border-radius: 99px;
+    font-size: 14px;
+    box-shadow: 0 4px 20px rgba(0,0,0,.2);
+    z-index: 9999;
+    animation: flashIn .25s ease;
+}
+
+@keyframes flashIn {
+    from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+    to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}

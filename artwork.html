@@ -260,12 +260,25 @@
 
         </div>
 
-        <!-- テキスト：ギャラリーへ -->
-        <button
-            class="btn btn--text"
-            onclick="window.location.href='gallery.html'">
-            ギャラリーへ戻る
+        <!-- もう一作品つくる -->
+        <button id="makeAnotherBtn" class="btn btn--secondary" style="display:none;">
+            ＋ もう一作品つくる
         </button>
+
+        <!-- テキスト：ギャラリーへ -->
+        <div class="buttonGroup" style="margin-top:4px;">
+            <button
+                class="btn btn--text"
+                onclick="window.location.href='gallery.html'">
+                ギャラリーへ戻る
+            </button>
+            <button
+                id="goShareBtn"
+                class="btn btn--text"
+                style="display:none;">
+                発表する作品を選ぶ →
+            </button>
+        </div>
 
     </section>
 
@@ -323,6 +336,53 @@
             <button id="intentSaveBtn" class="btn btn--primary">保存する</button>
             <button id="intentSkipBtn" class="btn btn--text">スキップして保存</button>
             <button id="intentCancelBtn" class="btn btn--text intentModal__cancelBtn">作品に戻る</button>
+        </div>
+
+    </div>
+</div>
+
+
+<!-- ================================= -->
+<!-- アンケート同意モーダル -->
+<!-- ================================= -->
+<div id="consentModal" class="surveyModal" style="display:none;" role="dialog" aria-modal="true">
+    <div class="surveyModal__card">
+
+        <p class="surveyModal__tag">アンケートへのご協力のお願い</p>
+        <h3 class="surveyModal__title">回答前にご確認ください</h3>
+
+        <div class="consentBody">
+            <p class="consentBody__lead">このアンケートは、AIとの共創体験を研究するために実施しています。</p>
+
+            <h4 class="consentBody__heading">保存される情報</h4>
+            <ul class="consentBody__list">
+                <li>5段階の評価回答（感情・満足度など）</li>
+                <li>自由記述（任意）</li>
+                <li>作品ID（無作為な番号のみ）</li>
+                <li>回答日時</li>
+                <li>ワークショップセッションID（無作為な番号のみ）</li>
+            </ul>
+
+            <h4 class="consentBody__heading">保存されない情報</h4>
+            <ul class="consentBody__list consentBody__list--safe">
+                <li>お名前・連絡先などの個人情報</li>
+                <li>作品の画像データ</li>
+                <li>AIとの会話内容</li>
+            </ul>
+
+            <h4 class="consentBody__heading">利用目的</h4>
+            <p>AIとの共創体験の研究・改善のみに使用します。第三者への提供や商用利用は行いません。</p>
+
+            <h4 class="consentBody__heading">保存期間と削除方法</h4>
+            <p>回答はお使いのブラウザ内（localStorage）にのみ保存されます。保存期間の上限はありません。アンケート管理画面から、または「全データを削除する」ボタンからいつでも削除できます。</p>
+
+            <h4 class="consentBody__heading">同意は任意です</h4>
+            <p>回答しなくても作品の保存や利用に影響はありません。「スキップ」を選択した場合、データは一切保存されません。</p>
+        </div>
+
+        <div class="intentModal__actions">
+            <button id="consentAgreeBtn" class="btn btn--primary">同意してアンケートに答える</button>
+            <button id="consentSkipBtn" class="btn btn--text">スキップ（保存しない）</button>
         </div>
 
     </div>
@@ -412,6 +472,22 @@
             </div>
         </div>
 
+        <!-- 感情の変化（制作前後） -->
+        <div class="surveyEmotionChange">
+            <h4 class="surveyEmotionChange__label">制作前後の感情の変化（任意）</h4>
+            <div class="surveyEmotionChange__row">
+                <div class="surveyEmotionChange__col">
+                    <label for="emotionBefore">制作を始める前の気持ち</label>
+                    <input type="text" id="emotionBefore" placeholder="例：疲れていた、落ち着かない" maxlength="80">
+                </div>
+                <div class="surveyEmotionChange__arrow">→</div>
+                <div class="surveyEmotionChange__col">
+                    <label for="emotionAfter">制作を終えた今の気持ち</label>
+                    <input type="text" id="emotionAfter" placeholder="例：少し軽くなった、達成感がある" maxlength="80">
+                </div>
+            </div>
+        </div>
+
         <div class="intentModal__field" style="margin-top:8px;">
             <label for="surveyFreeText">自由記述（任意）</label>
             <textarea id="surveyFreeText" rows="3" placeholder="感想・気づいたこと・改善してほしいことなど"></textarea>
@@ -428,6 +504,9 @@
 
 <footer class="siteFooter">
     <p class="copyright">Copyright &copy; 2026 Art Reflection 研究会. All rights reserved.</p>
+    <p class="copyright" style="margin-top:4px;">
+        <a href="survey-admin.html" style="color:inherit;opacity:.6;font-size:12px;">アンケートデータ管理</a>
+    </p>
 </footer>
 
 <script src="artwork.js"></script>

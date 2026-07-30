@@ -1352,3 +1352,101 @@ body{
 .pdf-conversation{
     display:none;
 }
+
+/* ===========================================
+   同意モーダル（consentBody）
+=========================================== */
+
+.consentBody{
+    font-size:13px;
+    line-height:1.75;
+    color:#374151;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+
+.consentBody__lead{
+    font-size:14px;
+    color:#1f2328;
+    font-weight:500;
+    margin:0;
+}
+
+.consentBody__heading{
+    font-size:13px;
+    font-weight:700;
+    color:#1f2328;
+    margin:4px 0 2px;
+    border-left:3px solid #6c8cff;
+    padding-left:8px;
+}
+
+.consentBody__list{
+    margin:0;
+    padding-left:20px;
+    color:#374151;
+}
+
+.consentBody__list--safe li{
+    color:#16a34a;
+}
+
+.consentBody p{
+    margin:0;
+    color:#374151;
+}
+
+/* ===========================================
+   アンケート 感情変化フィールド
+=========================================== */
+
+.surveyEmotionChange{
+    border-top:1px solid #f0f0f0;
+    padding-top:16px;
+    margin-top:4px;
+}
+
+.surveyEmotionChange__label{
+    font-size:13px;
+    font-weight:600;
+    color:#374151;
+    margin:0 0 12px;
+}
+
+.surveyEmotionChange__row{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    flex-wrap:wrap;
+}
+
+.surveyEmotionChange__col{
+    flex:1;
+    min-width:130px;
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+    font-size:12px;
+    color:#6b7280;
+}
+
+.surveyEmotionChange__col input{
+    padding:8px 10px;
+    border:1.5px solid #d1d5db;
+    border-radius:8px;
+    font-size:13px;
+    outline:none;
+    transition:border-color .15s;
+}
+
+.surveyEmotionChange__col input:focus{
+    border-color:#6c8cff;
+}
+
+.surveyEmotionChange__arrow{
+    font-size:18px;
+    color:#a78bfa;
+    font-weight:700;
+    flex-shrink:0;
+}
