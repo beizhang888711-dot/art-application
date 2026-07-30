@@ -151,7 +151,9 @@ function renderGallery() {
     }
 
     list.forEach((work, index) => {
+        // artworkId が null 同士で全件一致するのを防ぐ
         const isSelected = shareMode && selectedWork &&
+            selectedWork.artworkId != null &&
             selectedWork.artworkId === work.artworkId;
         const isDimmed = shareMode && selectedWork && !isSelected;
 
@@ -220,6 +222,15 @@ function renderGallery() {
 // ──────────────────────────────────────
 
 function confirmShareWork(work) {
+    // artworkId がない古い作品にはその場で付与して gallery に書き戻す
+    if (!work.artworkId) {
+        work.artworkId = "art-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 7);
+        const idx = gallery.findIndex(w => w.image === work.image);
+        if (idx !== -1) {
+            gallery[idx].artworkId = work.artworkId;
+            localStorage.setItem("gallery", JSON.stringify(gallery));
+        }
+    }
     selectedWork = work;
 
     // 確定バナーを更新
