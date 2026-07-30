@@ -578,26 +578,15 @@ body{
     flex: 1;
 }
 
-.shareThemeBtn {
-    padding: 7px 14px;
+/* バナーのテーマ表示ラベル（クリック不可・案内のみ） */
+.shareBanner__themeHint {
+    padding: 5px 12px;
     border-radius: 99px;
-    border: 1.5px solid rgba(255,255,255,.4);
-    background: transparent;
-    color: #fff;
-    font-size: 13px;
-    cursor: pointer;
+    border: 1px solid rgba(255,255,255,.3);
+    color: rgba(255,255,255,.75);
+    font-size: 12px;
     white-space: nowrap;
-    transition: background .15s, border-color .15s;
-}
-
-.shareThemeBtn:hover {
-    background: rgba(255,255,255,.15);
-}
-
-.shareThemeBtn--active {
-    background: rgba(255,255,255,.25);
-    border-color: #fff;
-    font-weight: 600;
+    pointer-events: none;
 }
 
 .shareBanner__cancel {
