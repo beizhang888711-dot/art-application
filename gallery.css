@@ -718,6 +718,7 @@ body{
 .galleryCard--shareMode {
     cursor: pointer;
     position: relative;
+    transition: opacity .25s, transform .35s, box-shadow .35s;
 }
 
 .galleryCard--shareMode:hover {
@@ -725,10 +726,18 @@ body{
     box-shadow: 0 16px 40px rgba(108,140,255,.25);
 }
 
+/* 何か選択済みのとき、選ばれていないカードを暗くする */
+.galleryCard--dimmed {
+    opacity: 0.32;
+    pointer-events: none;
+}
+
 .galleryCard--selected {
     outline: 3px solid #6c8cff;
-    outline-offset: 2px;
-    box-shadow: 0 0 0 6px rgba(108,140,255,.15), 0 12px 35px rgba(0,0,0,.10);
+    outline-offset: 3px;
+    box-shadow: 0 0 0 8px rgba(108,140,255,.18), 0 16px 40px rgba(0,0,0,.14);
+    opacity: 1 !important;
+    pointer-events: auto !important;
 }
 
 .galleryCard__selectedBadge {

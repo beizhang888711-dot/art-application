@@ -153,11 +153,13 @@ function renderGallery() {
     list.forEach((work, index) => {
         const isSelected = shareMode && selectedWork &&
             selectedWork.artworkId === work.artworkId;
+        const isDimmed = shareMode && selectedWork && !isSelected;
 
         const card = document.createElement("div");
         card.className = "galleryCard glass" +
-            (shareMode   ? " galleryCard--shareMode"   : "") +
-            (isSelected  ? " galleryCard--selected"    : "");
+            (shareMode   ? " galleryCard--shareMode" : "") +
+            (isSelected  ? " galleryCard--selected"  : "") +
+            (isDimmed    ? " galleryCard--dimmed"    : "");
 
         const keywords = work.keywords.map(k =>
             `<span class="keyword">${k}</span>`
