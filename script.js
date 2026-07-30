@@ -16,9 +16,10 @@ function startCountdown() {
 
     countdownTimer = setInterval(() => {
         remaining--;
-        if (el) el.textContent = remaining;
+        if (el) el.textContent = remaining > 0 ? remaining : "";
         if (remaining <= 0) {
             clearInterval(countdownTimer);
+            countdownTimer = null;
             // 10秒後はモーダルを閉じるだけ（遷移しない）
             if (introModal) introModal.style.display = "none";
         }
