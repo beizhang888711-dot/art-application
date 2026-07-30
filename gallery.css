@@ -714,6 +714,37 @@ body{
     margin: 0;
 }
 
+/* テーマ選択ボタン群 */
+.shareConfirmed__themeRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.itemThemeBtn {
+    padding: 5px 11px;
+    border-radius: 99px;
+    border: 1.5px solid #c5d0f0;
+    background: #fff;
+    color: #3d5a99;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background .15s, border-color .15s, color .15s;
+    white-space: nowrap;
+}
+
+.itemThemeBtn:hover {
+    background: #f0f4ff;
+    border-color: #6c8cff;
+}
+
+.itemThemeBtn--active {
+    background: #6c8cff;
+    border-color: #6c8cff;
+    color: #fff;
+    font-weight: 600;
+}
+
 .shareConfirmed__reflection {
     font-size: 12px;
     line-height: 1.65;

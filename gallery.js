@@ -7,11 +7,11 @@
 // ──────────────────────────────────────
 
 const SHARE_THEMES = {
-    favorite:    "⭐ 一番気に入った作品",
-    closest:     "🎯 想像に一番近かった作品",
-    surprising:  "😲 一番想像と違った作品",
-    aiInterpret: "🤖 AIの解釈が面白かった作品",
-    emotion:     "💫 制作前後で気持ちが変化した作品"
+    favorite:    "⭐ 一番気に入った",
+    closest:     "🎯 想像に一番近かった",
+    surprising:  "😲 一番想像と違った",
+    aiInterpret: "🤖 AIの解釈が面白かった",
+    emotion:     "💫 気持ちが変化した"
 };
 
 // ──────────────────────────────────────
@@ -41,12 +41,12 @@ modal.onclick = e => { if (e.target === modal) modal.style.display = "none"; };
 
 // ──────────────────────────────────────
 // 状態
+// selectedWorks: Map<artworkId, themeKey>
 // ──────────────────────────────────────
 
 let gallery       = JSON.parse(localStorage.getItem("gallery")) || [];
 let shareMode     = false;
-let activeTheme   = "favorite";
-let selectedWorks = new Set(); // artworkId の Set（複数選択）
+let selectedWorks = new Map(); // artworkId → themeKey
 
 // ──────────────────────────────────────
 // 発表モード ON / OFF
@@ -57,13 +57,13 @@ function enterShareMode() {
     shareBanner.style.display       = "block";
     enterShareModeBtn.style.display = "none";
     document.getElementById("galleryHeader").querySelector("p").textContent =
-        "発表したい作品をタップして選んでください（複数選択可）";
+        "発表したい作品を選び、テーマを設定してください（複数可）";
     renderGallery();
 }
 
 function exitShareMode() {
     shareMode     = false;
-    selectedWorks = new Set();
+    selectedWorks = new Map();
     shareBanner.style.display       = "none";
     shareConfirmed.style.display    = "none";
     enterShareModeBtn.style.display = "inline-flex";
@@ -72,24 +72,11 @@ function exitShareMode() {
     renderGallery();
 }
 
-// 発表テーマ切替
-document.getElementById("shareThemes").addEventListener("click", e => {
-    const btn = e.target.closest(".shareThemeBtn");
-    if (!btn) return;
-    document.querySelectorAll(".shareThemeBtn").forEach(b => b.classList.remove("shareThemeBtn--active"));
-    btn.classList.add("shareThemeBtn--active");
-    activeTheme = btn.dataset.theme;
-    if (selectedWorks.size > 0) {
-        document.getElementById("shareConfirmedTheme").textContent = SHARE_THEMES[activeTheme];
-        persistShareSelection();
-    }
-});
-
 enterShareModeBtn.addEventListener("click", enterShareMode);
 shareCancelBtn.addEventListener("click", exitShareMode);
 
 shareResetBtn.addEventListener("click", () => {
-    selectedWorks = new Set();
+    selectedWorks = new Map();
     shareConfirmed.style.display = "none";
     renderGallery();
 });
@@ -99,13 +86,18 @@ shareResetBtn.addEventListener("click", () => {
 // ──────────────────────────────────────
 
 function persistShareSelection() {
-    const works = gallery.filter(w => w.artworkId && selectedWorks.has(w.artworkId));
+    const entries = [...selectedWorks.entries()].map(([id, theme]) => {
+        const work = gallery.find(w => w.artworkId === id);
+        return {
+            artworkId:  id,
+            title:      work?.title || "",
+            theme:      theme,
+            themeLabel: SHARE_THEMES[theme] || theme
+        };
+    });
     localStorage.setItem("shareSelection", JSON.stringify({
-        artworkIds:  [...selectedWorks],
-        titles:      works.map(w => w.title),
-        theme:       activeTheme,
-        themeLabel:  SHARE_THEMES[activeTheme],
-        selectedAt:  new Date().toISOString()
+        entries,
+        selectedAt: new Date().toISOString()
     }));
 }
 
@@ -218,7 +210,8 @@ function toggleShareWork(work) {
     if (selectedWorks.has(work.artworkId)) {
         selectedWorks.delete(work.artworkId);
     } else {
-        selectedWorks.add(work.artworkId);
+        // デフォルトテーマ（未選択）で追加
+        selectedWorks.set(work.artworkId, "");
     }
 
     if (selectedWorks.size === 0) {
@@ -233,31 +226,47 @@ function toggleShareWork(work) {
 }
 
 // ──────────────────────────────────────
-// 確定バナーの中身を描画
+// 確定バナーを描画（テーマ選択付き）
 // ──────────────────────────────────────
 
 function renderShareConfirmed() {
-    document.getElementById("shareConfirmedTheme").textContent = SHARE_THEMES[activeTheme];
-
     const selected = gallery.filter(w => w.artworkId && selectedWorks.has(w.artworkId));
     shareConfirmedList.innerHTML = "";
 
     selected.forEach(work => {
-        const item = document.createElement("div");
-        item.className = "shareConfirmed__item";
-
+        const currentTheme = selectedWorks.get(work.artworkId) || "";
         const kw = (work.keywords || []).map(k => `<span class="keyword">${k}</span>`).join("");
 
+        // テーマボタンのHTML
+        const themeButtons = Object.entries(SHARE_THEMES).map(([key, label]) =>
+            `<button class="itemThemeBtn${currentTheme === key ? " itemThemeBtn--active" : ""}" data-theme="${key}">${label}</button>`
+        ).join("");
+
+        const item = document.createElement("div");
+        item.className = "shareConfirmed__item";
         item.innerHTML = `
             <img class="shareConfirmed__img" src="${work.image}" alt="${work.title}">
             <div class="shareConfirmed__body">
                 <p class="shareConfirmed__title">${work.title}</p>
+                <div class="shareConfirmed__themeRow">${themeButtons}</div>
                 <p class="shareConfirmed__reflection">${work.reflection || ""}</p>
                 <div class="shareConfirmed__keywords">${kw}</div>
             </div>
             <button class="shareConfirmed__removeBtn" aria-label="選択解除">×</button>
         `;
 
+        // テーマボタンのクリック
+        item.querySelectorAll(".itemThemeBtn").forEach(btn => {
+            btn.onclick = () => {
+                const t = btn.dataset.theme;
+                // 同じテーマをもう一度押したら解除
+                selectedWorks.set(work.artworkId, selectedWorks.get(work.artworkId) === t ? "" : t);
+                persistShareSelection();
+                renderShareConfirmed();
+            };
+        });
+
+        // × 削除
         item.querySelector(".shareConfirmed__removeBtn").onclick = () => {
             selectedWorks.delete(work.artworkId);
             if (selectedWorks.size === 0) shareConfirmed.style.display = "none";

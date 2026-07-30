@@ -25,14 +25,7 @@
     <div class="shareBanner__inner">
         <div class="shareBanner__left">
             <p class="shareBanner__label">発表モード</p>
-            <p class="shareBanner__desc">発表したい作品を1点選んでください</p>
-        </div>
-        <div class="shareBanner__themes" id="shareThemes">
-            <button class="shareThemeBtn shareThemeBtn--active" data-theme="favorite">⭐ 一番気に入った</button>
-            <button class="shareThemeBtn" data-theme="closest">🎯 想像に一番近かった</button>
-            <button class="shareThemeBtn" data-theme="surprising">😲 一番想像と違った</button>
-            <button class="shareThemeBtn" data-theme="aiInterpret">🤖 AIの解釈が面白かった</button>
-            <button class="shareThemeBtn" data-theme="emotion">💫 気持ちが変化した</button>
+            <p class="shareBanner__desc">作品を選んで、テーマを設定してください</p>
         </div>
         <button id="shareCancelBtn" class="shareBanner__cancel">× 発表モードを終了</button>
     </div>
@@ -41,10 +34,7 @@
 <!-- 発表作品確定バナー -->
 <div id="shareConfirmed" class="shareConfirmed" style="display:none;">
     <div class="shareConfirmed__header">
-        <div class="shareConfirmed__headerLeft">
-            <p class="shareConfirmed__label">選択中の発表作品</p>
-            <p id="shareConfirmedTheme" class="shareConfirmed__theme"></p>
-        </div>
+        <p class="shareConfirmed__label">選択中の発表作品</p>
         <button id="shareResetBtn" class="subButton">選択をリセット</button>
     </div>
     <!-- 選択作品カードリスト（JS で生成） -->
