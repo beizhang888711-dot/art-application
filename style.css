@@ -1417,13 +1417,10 @@ line-height:2;
 }
 
 .introModal__btn:disabled{
-
-    background:#a0aec0;
-
-    cursor:default;
-
-    transform:none;
-
+    background: #4b5563;
+    cursor: not-allowed;
+    transform: none;
+    opacity: 1;
 }
 
 .introModal__countdown{

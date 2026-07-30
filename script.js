@@ -10,17 +10,24 @@ const introModalStart= document.getElementById("introModalStart");
 let countdownTimer = null;
 
 function startCountdown() {
-    const el = document.getElementById("introCountdown");
+    const countEl = document.getElementById("introCountdown");
+    const msgEl   = document.getElementById("introCountdownMsg");
     let remaining = 10;
-    if (el) el.textContent = remaining;
+    if (countEl) countEl.textContent = remaining;
+
+    // ボタンを無効化
+    if (introModalStart) introModalStart.disabled = true;
 
     countdownTimer = setInterval(() => {
         remaining--;
-        if (el) el.textContent = remaining > 0 ? remaining : "";
+        if (countEl) countEl.textContent = remaining > 0 ? remaining : "";
         if (remaining <= 0) {
             clearInterval(countdownTimer);
             countdownTimer = null;
-            // カウントダウン終了後は何もしない（モーダルはそのまま）
+            // 10秒経過 → ボタンを有効化してラベルを切替
+            if (introModalStart) introModalStart.disabled = false;
+            if (msgEl)   msgEl.textContent   = "はじめる ";
+            if (countEl) countEl.textContent = "";
         }
     }, 1000);
 }
@@ -28,8 +35,11 @@ function startCountdown() {
 function stopCountdown() {
     clearInterval(countdownTimer);
     countdownTimer = null;
-    const el = document.getElementById("introCountdown");
-    if (el) el.textContent = "";
+    const countEl = document.getElementById("introCountdown");
+    const msgEl   = document.getElementById("introCountdownMsg");
+    if (countEl) countEl.textContent = "";
+    if (msgEl)   msgEl.textContent   = "はじめる ";
+    if (introModalStart) introModalStart.disabled = false;
 }
 
 function goToTheme() {
