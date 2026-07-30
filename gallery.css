@@ -675,7 +675,25 @@ body{
 .shareConfirmed__theme {
     font-size: 14px;
     color: #555;
+    margin: 0 0 14px;
+}
+
+.shareConfirmed__reflection {
+    font-size: 14px;
+    line-height: 1.75;
+    color: #374151;
     margin: 0 0 12px;
+    padding: 12px 14px;
+    background: #f7f8fa;
+    border-radius: 8px;
+    border-left: 3px solid #c4b5fd;
+}
+
+.shareConfirmed__keywords {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
 }
 
 .shareConfirmed__reasonWrap {

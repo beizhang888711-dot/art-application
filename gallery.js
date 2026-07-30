@@ -223,9 +223,15 @@ function confirmShareWork(work) {
     selectedWork = work;
 
     // 確定バナーを更新
-    document.getElementById("shareConfirmedImg").src   = work.image;
-    document.getElementById("shareConfirmedTitle").textContent  = work.title;
-    document.getElementById("shareConfirmedTheme").textContent  = SHARE_THEMES[activeTheme];
+    document.getElementById("shareConfirmedImg").src             = work.image;
+    document.getElementById("shareConfirmedTitle").textContent   = work.title;
+    document.getElementById("shareConfirmedTheme").textContent   = SHARE_THEMES[activeTheme];
+    document.getElementById("shareConfirmedReflection").textContent = work.reflection || "";
+
+    // キーワード
+    const kwContainer = document.getElementById("shareConfirmedKeywords");
+    kwContainer.innerHTML = (work.keywords || [])
+        .map(k => `<span class="keyword">${k}</span>`).join("");
     document.getElementById("shareReason").value = (() => {
         // 保存済みの理由があれば復元
         try {
