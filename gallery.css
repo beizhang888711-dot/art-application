@@ -647,15 +647,15 @@ body{
 /* 選択作品カードを横スクロールで並べる */
 .shareConfirmed__list {
     display: flex;
-    gap: 20px;
+    gap: 24px;
     max-width: 1300px;
     margin: 0 auto;
     overflow-x: auto;
-    padding-bottom: 8px;
+    padding-bottom: 12px;
 }
 
 .shareConfirmed__list::-webkit-scrollbar {
-    height: 4px;
+    height: 5px;
 }
 .shareConfirmed__list::-webkit-scrollbar-thumb {
     background: #c4b5fd;
@@ -666,17 +666,18 @@ body{
 .shareConfirmed__item {
     position: relative;
     flex-shrink: 0;
-    width: 520px;
+    width: 760px;
     background: #f7f8fa;
-    border: 2px solid #6c8cff;
-    border-radius: 14px;
+    border: 2.5px solid #6c8cff;
+    border-radius: 18px;
     overflow: hidden;
     display: flex;
     flex-direction: row;
+    box-shadow: 0 6px 24px rgba(108,140,255,.18);
 }
 
 .shareConfirmed__img {
-    width: 220px;
+    width: 360px;
     flex-shrink: 0;
     aspect-ratio: 1 / 1;
     object-fit: cover;
@@ -686,10 +687,10 @@ body{
 .shareConfirmed__body {
     flex: 1;
     min-width: 0;
-    padding: 16px 18px 16px;
+    padding: 22px 24px;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
 }
 
 .shareConfirmed__label {
