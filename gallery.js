@@ -72,6 +72,25 @@ function exitShareMode() {
     renderGallery();
 }
 
+// バナーのテーマボタン → 選択中の全作品に一括適用
+document.getElementById("shareThemes").addEventListener("click", e => {
+    const btn = e.target.closest(".shareThemeBtn");
+    if (!btn) return;
+    const theme = btn.dataset.theme;
+    // 全選択作品に同じテーマを設定
+    for (const id of selectedWorks.keys()) {
+        selectedWorks.set(id, theme);
+    }
+    // ボタンのハイライト更新
+    document.querySelectorAll(".shareThemeBtn").forEach(b =>
+        b.classList.toggle("shareThemeBtn--active", b.dataset.theme === theme)
+    );
+    if (selectedWorks.size > 0) {
+        renderShareConfirmed();
+        persistShareSelection();
+    }
+});
+
 enterShareModeBtn.addEventListener("click", enterShareMode);
 shareCancelBtn.addEventListener("click", exitShareMode);
 
