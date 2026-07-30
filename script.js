@@ -20,8 +20,7 @@ function startCountdown() {
         if (remaining <= 0) {
             clearInterval(countdownTimer);
             countdownTimer = null;
-            // 10秒後はモーダルを閉じるだけ（遷移しない）
-            if (introModal) introModal.style.display = "none";
+            // カウントダウン終了後は何もしない（モーダルはそのまま）
         }
     }, 1000);
 }
