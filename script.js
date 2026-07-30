@@ -19,7 +19,8 @@ function startCountdown() {
         if (el) el.textContent = remaining;
         if (remaining <= 0) {
             clearInterval(countdownTimer);
-            goToTheme();
+            // 10秒後はモーダルを閉じるだけ（遷移しない）
+            if (introModal) introModal.style.display = "none";
         }
     }, 1000);
 }
