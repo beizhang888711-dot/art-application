@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>進行メモ | Art Reflection</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+    background: #0f1220;
+    color: #e5e7eb;
+    min-height: 100vh;
+}
+
+/* ── ヘッダー ── */
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 28px;
+    background: #161b2e;
+    border-bottom: 1px solid rgba(255,255,255,.08);
+    flex-wrap: wrap;
+    gap: 12px;
+}
+.header__title { font-size: 15px; font-weight: 700; color: #a78bfa; }
+.header__back  { font-size: 13px; color: #9ca3af; text-decoration: none; }
+.header__back:hover { color: #e5e7eb; }
+
+/* ── タイマーブロック ── */
+.timerBlock {
+    text-align: center;
+    padding: 32px 20px 20px;
+}
+.timerDisplay {
+    font-size: 72px;
+    font-weight: 800;
+    letter-spacing: .04em;
+    font-variant-numeric: tabular-nums;
+    color: #c4b5fd;
+    line-height: 1;
+}
+.timerDisplay.warn  { color: #fbbf24; }
+.timerDisplay.over  { color: #f87171; }
+.timerMeta {
+    margin-top: 8px;
+    font-size: 13px;
+    color: #6b7280;
+}
+.timerControls {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 18px;
+    flex-wrap: wrap;
+}
+.btn {
+    padding: 9px 22px;
+    border-radius: 99px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: opacity .15s;
+}
+.btn:hover { opacity: .85; }
+.btn--start  { background: #7c3aed; color: #fff; }
+.btn--pause  { background: #374151; color: #e5e7eb; }
+.btn--reset  { background: transparent; color: #9ca3af; border: 1px solid #374151; }
+.durationBtns { display: flex; gap: 8px; justify-content: center; margin-top: 10px; flex-wrap: wrap; }
+.durationBtn {
+    padding: 5px 14px;
+    border-radius: 99px;
+    border: 1px solid #374151;
+    background: transparent;
+    color: #9ca3af;
+    font-size: 12px;
+    cursor: pointer;
+    transition: border-color .15s, color .15s;
+}
+.durationBtn.active, .durationBtn:hover { border-color: #a78bfa; color: #c4b5fd; }
+
+/* ── タイムライン ── */
+.section { max-width: 760px; margin: 0 auto; padding: 0 20px 32px; }
+.sectionTitle {
+    font-size: 11px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: #6b7280;
+    margin-bottom: 14px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(255,255,255,.07);
+}
+
+.timeline { display: flex; flex-direction: column; gap: 10px; }
+.timelineItem {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,.06);
+    background: rgba(255,255,255,.03);
+    transition: background .2s, border-color .2s;
+}
+.timelineItem.active {
+    background: rgba(124,58,237,.15);
+    border-color: #7c3aed;
+}
+.timelineItem.done {
+    opacity: .38;
+}
+.timelineItem__time {
+    font-size: 12px;
+    color: #6b7280;
+    min-width: 52px;
+    padding-top: 1px;
+    font-variant-numeric: tabular-nums;
+}
+.timelineItem.active .timelineItem__time { color: #a78bfa; font-weight: 700; }
+.timelineItem__text { font-size: 14px; line-height: 1.6; color: #d1d5db; }
+.timelineItem.active .timelineItem__text { color: #f3f4f6; }
+.timelineItem__tag {
+    display: inline-block;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 99px;
+    margin-right: 6px;
+    font-weight: 600;
+}
+.tag--time    { background: rgba(251,191,36,.15); color: #fbbf24; }
+.tag--tip     { background: rgba(96,165,250,.15);  color: #60a5fa; }
+.tag--cheer   { background: rgba(52,211,153,.15);  color: #34d399; }
+.tag--trouble { background: rgba(248,113,113,.15); color: #f87171; }
+
+/* ── 困ったときの対応 ── */
+.troubleGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 10px;
+}
+.troubleCard {
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.07);
+    border-radius: 10px;
+    padding: 14px 16px;
+}
+.troubleCard__q { font-size: 13px; font-weight: 600; color: #f3f4f6; margin-bottom: 6px; }
+.troubleCard__a { font-size: 13px; color: #9ca3af; line-height: 1.65; }
+
+/* ── 現在のヒント通知 ── */
+#hintToast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    opacity: 0;
+    background: #1e1b4b;
+    border: 1px solid #7c3aed;
+    border-radius: 12px;
+    padding: 12px 22px;
+    font-size: 14px;
+    color: #c4b5fd;
+    max-width: 480px;
+    width: 90%;
+    text-align: center;
+    transition: opacity .3s, transform .3s;
+    z-index: 999;
+    pointer-events: none;
+}
+#hintToast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+footer {
+    text-align: center;
+    padding: 20px;
+    font-size: 11px;
+    color: #374151;
+    border-top: 1px solid rgba(255,255,255,.05);
+    margin-top: 16px;
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+    <span class="header__title">🎨 Art Reflection — ファシリテーター進行メモ</span>
+    <a class="header__back" href="gallery.html">← ギャラリーへ戻る</a>
+</div>
+
+<!-- タイマー -->
+<div class="timerBlock">
+    <div id="timerDisplay" class="timerDisplay">20:00</div>
+    <p class="timerMeta">制作時間タイマー</p>
+    <div class="timerControls">
+        <button class="btn btn--start" id="startBtn">▶ 開始</button>
+        <button class="btn btn--pause" id="pauseBtn" style="display:none;">⏸ 一時停止</button>
+        <button class="btn btn--reset" id="resetBtn">↺ リセット</button>
+    </div>
+    <div class="durationBtns">
+        <button class="durationBtn" data-min="10">10分</button>
+        <button class="durationBtn active" data-min="15">15分</button>
+        <button class="durationBtn" data-min="20">20分</button>
+    </div>
+</div>
+
+<!-- タイムライン -->
+<div class="section">
+    <p class="sectionTitle">タイムライン — 声かけのタイミング</p>
+    <div class="timeline" id="timeline"></div>
+</div>
+
+<!-- 困ったときの対応 -->
+<div class="section">
+    <p class="sectionTitle">困ったときの対応</p>
+    <div class="troubleGrid">
+        <div class="troubleCard">
+            <p class="troubleCard__q">「何を書けばいいか分からない」</p>
+            <p class="troubleCard__a">「今の気持ちを一言だけ書いてみてください。正解はないので、ぱっと思ったことで大丈夫です。」</p>
+        </div>
+        <div class="troubleCard">
+            <p class="troubleCard__q">「AIの質問が難しい」</p>
+            <p class="troubleCard__a">「『よく分からない』ボタンを押すと、やさしい言葉で言い換えてくれます。スキップしても作品は作れます。」</p>
+        </div>
+        <div class="troubleCard">
+            <p class="troubleCard__q">「作品が思っていたと違う」</p>
+            <p class="troubleCard__a">「『作品をさらに仕上げる』から色や雰囲気を変えられます。想像と違うのも発見です。」</p>
+        </div>
+        <div class="troubleCard">
+            <p class="troubleCard__q">「操作が分からない」</p>
+            <p class="troubleCard__a">「画面を見せてもらえれば一緒に確認します。どこで止まっていますか？」</p>
+        </div>
+        <div class="troubleCard">
+            <p class="troubleCard__q">「もう終わった（早い）」</p>
+            <p class="troubleCard__a">「もう一つ作れます！『＋ もう一作品つくる』ボタンから別のテーマで作ってみてください。」</p>
+        </div>
+        <div class="troubleCard">
+            <p class="troubleCard__q">「保存の仕方が分からない」</p>
+            <p class="troubleCard__a">「『この作品を保存』ボタンを押して、タイトルなどを入力してから保存してください。スキップもできます。」</p>
+        </div>
+    </div>
+</div>
+
+<div id="hintToast"></div>
+
+<footer>Art Reflection 研究会 — ファシリテーター専用ページ</footer>
+
+<script src="facilitator.js"></script>
+</body>
+</html>
