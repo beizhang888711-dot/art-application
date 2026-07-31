@@ -19,8 +19,10 @@ module.exports = async function handler(req, res) {
 
     const { theme, history, step, totalSteps, isClosing, isSkipped } = body;
 
-    if (!process.env.ICA_ENDPOINT || !process.env.ICA_API_KEY) {
-        return res.status(500).json({ error: "環境変数 ICA_ENDPOINT / ICA_API_KEY が未設定です" });
+    const ICA_ENDPOINT = process.env.ICA_ENDPOINT || "https://api.nextgen-beta.ica.ibm.com/ica/v1";
+
+    if (!process.env.ICA_API_KEY) {
+        return res.status(500).json({ error: "環境変数 ICA_API_KEY が未設定です" });
     }
 
     // ── フェーズ定義（5問・4フェーズ）──
@@ -95,7 +97,7 @@ ${phaseGuide[phase]}
     ];
 
     try {
-        const url = `${process.env.ICA_ENDPOINT}/chat/completions`;
+        const url = `${ICA_ENDPOINT}/chat/completions`;
         console.log("[chat] POST", url, "step:", step, "isClosing:", isClosing);
 
         const response = await fetch(url, {

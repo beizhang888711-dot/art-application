@@ -26,8 +26,10 @@ module.exports = async function handler(req, res) {
         return res.status(400).json({ error: "memories が配列ではありません" });
     }
 
-    if (!process.env.ICA_ENDPOINT || !process.env.ICA_API_KEY) {
-        return res.status(500).json({ error: "環境変数 ICA_ENDPOINT / ICA_API_KEY が未設定です" });
+    const ICA_ENDPOINT = process.env.ICA_ENDPOINT || "https://api.nextgen-beta.ica.ibm.com/ica/v1";
+
+    if (!process.env.ICA_API_KEY) {
+        return res.status(500).json({ error: "環境変数 ICA_API_KEY が未設定です" });
     }
 
     // ── スタイル別の描画指針 ──
@@ -88,7 +90,7 @@ ${styleInstruction}
 「${adjustInstruction}」を最優先で反映し、全体の感情表現とスタイルは維持すること。` : ""}`;
 
     try {
-        const url = `${process.env.ICA_ENDPOINT}/chat/completions`;
+        const url = `${ICA_ENDPOINT}/chat/completions`;
         console.log("[generate-params] POST", url);
 
         const response = await fetch(url, {
