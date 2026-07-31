@@ -17,8 +17,8 @@ async function fetchGeneratedImage(prompt) {
         throw new Error(data.error || `Image API error: ${response.status}`);
     }
 
-    // URL形式で返ってくる
-    return data.url;
+    // gpt-image-1 は b64_json で返ってくる
+    return `data:image/png;base64,${data.b64_json}`;
 }
 
 async function fetchAIParams(

@@ -39,7 +39,7 @@ module.exports = async function handler(req, res) {
                 "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
             },
             body: JSON.stringify({
-                model:  "dall-e-3",
+                model:  "gpt-image-1",
                 prompt: prompt,
                 n:      1,
                 size:   "1024x1024"
@@ -59,8 +59,8 @@ module.exports = async function handler(req, res) {
         }
 
         const data = JSON.parse(raw);
-        // data.data[0].url に画像URLが入っている
-        res.status(200).json({ url: data.data[0].url });
+        // gpt-image-1 は b64_json で返ってくる
+        res.status(200).json({ b64_json: data.data[0].b64_json });
 
     } catch (err) {
         console.error("[generate-image] exception:", err.message);
