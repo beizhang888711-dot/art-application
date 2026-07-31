@@ -10,11 +10,12 @@ async function fetchGeneratedImage(prompt) {
         body: JSON.stringify({ prompt })
     });
 
-    if (!response.ok) {
-        throw new Error(`Image API error: ${response.status}`);
-    }
-
     const data = await response.json();
+
+    if (!response.ok) {
+        console.error("[generate-image] error response:", data);
+        throw new Error(data.error || `Image API error: ${response.status}`);
+    }
 
     // b64_json 形式で返ってくる
     return data.b64_json;
