@@ -17,8 +17,8 @@ async function fetchGeneratedImage(prompt) {
         throw new Error(data.error || `Image API error: ${response.status}`);
     }
 
-    // b64_json 形式で返ってくる
-    return data.b64_json;
+    // URL形式で返ってくる
+    return data.url;
 }
 
 async function fetchAIParams(
@@ -360,8 +360,8 @@ artImg.style.transform = "scale(0.92)";
 
         // ─── DALL-E 3 で画像生成 ───
         const imagePrompt = ai.imagePrompt || ai.title || "abstract emotional artwork";
-        const b64 = await fetchGeneratedImage(imagePrompt);
-        artImg.src = `data:image/png;base64,${b64}`;
+        const url = await fetchGeneratedImage(imagePrompt);
+        artImg.src = url;
 
         console.log("✅ 画像生成完了");
 
@@ -497,8 +497,8 @@ async function runAdjust(instruction) {
 
         // ── DALL-E 3 で再生成 ──
         const imagePrompt = ai.imagePrompt || ai.title || "abstract emotional artwork";
-        const b64 = await fetchGeneratedImage(imagePrompt);
-        artImg.src = `data:image/png;base64,${b64}`;
+        const url = await fetchGeneratedImage(imagePrompt);
+        artImg.src = url;
 
         // ── before/after 比較表示 ──
         beforeImg.src     = beforeDataUrl;

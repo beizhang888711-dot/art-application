@@ -39,11 +39,10 @@ module.exports = async function handler(req, res) {
                 "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
             },
             body: JSON.stringify({
-                model:           "dall-e-3",
-                prompt:          prompt,
-                n:               1,
-                size:            "1024x1024",
-                response_format: "b64_json"
+                model:  "dall-e-3",
+                prompt: prompt,
+                n:      1,
+                size:   "1024x1024"
             })
         });
 
@@ -60,8 +59,8 @@ module.exports = async function handler(req, res) {
         }
 
         const data = JSON.parse(raw);
-        // data.data[0] に b64_json が入っている
-        res.status(200).json(data.data[0]);
+        // data.data[0].url に画像URLが入っている
+        res.status(200).json({ url: data.data[0].url });
 
     } catch (err) {
         console.error("[generate-image] exception:", err.message);

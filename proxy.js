@@ -164,23 +164,25 @@ app.post("/proxy/generate-image", async (req, res) => {
                 "Authorization": `Bearer ${OPENAI_API_KEY}`
             },
             body: JSON.stringify({
-                model:   "dall-e-3",
-                prompt:  prompt,
-                n:       1,
-                size:    "1024x1024",
-                response_format: "b64_json"
+                model:  "dall-e-3",
+                prompt: prompt,
+                n:      1,
+                size:   "1024x1024"
             })
         });
 
-        const data = await response.json();
-        console.log("画像APIレスポンス status:", response.status);
+        const raw = await response.text();
+        console.log("画像APIレスポンス status:", response.status, raw.slice(0, 300));
 
         if (!response.ok) {
-            throw new Error(data.error?.message || `API error: ${response.status}`);
+            let msg;
+            try { msg = JSON.parse(raw).error?.message; } catch { msg = null; }
+            throw new Error(msg || `API error: ${response.status}`);
         }
 
-        // data.data[0] に b64_json が入っている
-        res.json(data.data[0]);
+        const data = JSON.parse(raw);
+        // data.data[0].url に画像URLが入っている
+        res.json({ url: data.data[0].url });
 
     } catch (err) {
         console.error("画像生成エラー:", err);
