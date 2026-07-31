@@ -41,11 +41,14 @@ async function fetchAIParams(
         })
     });
 
+    const data = await response.json();
+
     if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
+        console.error("[generate-params] error response:", data);
+        throw new Error(data.error || `API error: ${response.status}`);
     }
 
-    return await response.json();
+    return data;
 }
 // ======================================
 // 生成画像表示用 img 要素
