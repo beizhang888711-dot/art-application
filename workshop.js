@@ -3,7 +3,7 @@
 // AIが回答に応じて動的に次の質問を生成する
 // ======================================
 
-const PROXY_ENDPOINT = "/api";
+const PROXY_ENDPOINT = "/proxy";
 const TOTAL_STEPS    = 5; // 質問数（4フェーズ5問）
 
 // ======================================
@@ -474,7 +474,8 @@ dontKnowBtn.addEventListener("click", dontKnow);
         removeTyping();
         history.push({ role: "assistant", content: firstQuestion });
         addAIMessage(firstQuestion);
-    } catch {
+    } catch (err) {
+        console.error("初回質問取得失敗:", err);
         removeTyping();
         const fallback = `「${selectedTheme}」というテーマ、どんな気持ちが浮かびますか？難しく考えなくて大丈夫です。`;
         history.push({ role: "assistant", content: fallback });
