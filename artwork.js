@@ -2,7 +2,7 @@ const PROXY_ENDPOINT = "/proxy";
 
 async function fetchGeneratedImage(prompt) {
 
-    const response = await fetch(`/api/generate-image`, {
+    const response = await fetch(`${PROXY_ENDPOINT}/generate-image`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"

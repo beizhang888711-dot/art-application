@@ -1,6 +1,7 @@
 {
   "rewrites": [
     { "source": "/proxy/generate-params", "destination": "/api/generate-params" },
+    { "source": "/proxy/generate-image",  "destination": "/api/generate-image" },
     { "source": "/proxy/chat",            "destination": "/api/chat" },
     { "source": "/proxy/surveys",         "destination": "/api/surveys" }
   ],
