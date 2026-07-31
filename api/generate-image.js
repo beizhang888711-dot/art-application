@@ -59,7 +59,7 @@ module.exports = async function handler(req, res) {
         }
 
         const data = JSON.parse(raw);
-        // gpt-image-1 は b64_json で返ってくる
+        // gpt-image-2 は b64_json で返ってくる
         res.status(200).json({ b64_json: data.data[0].b64_json });
 
     } catch (err) {

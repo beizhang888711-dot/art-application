@@ -17,7 +17,7 @@ async function fetchGeneratedImage(prompt) {
         throw new Error(data.error || `Image API error: ${response.status}`);
     }
 
-    // gpt-image-1 は b64_json で返ってくる
+    // gpt-image-2 は b64_json で返ってくる
     return `data:image/png;base64,${data.b64_json}`;
 }
 

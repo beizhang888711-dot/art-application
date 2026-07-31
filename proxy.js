@@ -181,7 +181,7 @@ app.post("/proxy/generate-image", async (req, res) => {
         }
 
         const data = JSON.parse(raw);
-        // gpt-image-1 は b64_json で返ってくる
+        // gpt-image-2 は b64_json で返ってくる
         res.json({ b64_json: data.data[0].b64_json });
 
     } catch (err) {
