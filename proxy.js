@@ -13,7 +13,7 @@ const app = express();
 app.use(express.json());
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-const ICA_ENDPOINT   = "https://api.openai.com/v1";
+const OPENAI_ENDPOINT   = "https://api.openai.com/v1";
 
 // ブラウザからのリクエストを許可（CORS設定）
 app.use((req, res, next) => {
@@ -101,7 +101,7 @@ ${styleInstruction}
 
     // --- (ここから下は、レスポンスのパース部分を除き変更なし) ---
     try {
-        const response = await fetch(`${ICA_ENDPOINT}/chat/completions`, {
+        const response = await fetch(`${OPENAI_ENDPOINT}/chat/completions`, {
             method: "POST",
             headers: {
                 "Content-Type":  "application/json",
@@ -157,7 +157,7 @@ app.post("/proxy/generate-image", async (req, res) => {
     console.log("画像生成プロンプト:", prompt.slice(0, 100));
 
     try {
-        const response = await fetch(`${ICA_ENDPOINT}/images/generations`, {
+        const response = await fetch(`${OPENAI_ENDPOINT}/images/generations`, {
             method: "POST",
             headers: {
                 "Content-Type":  "application/json",
@@ -271,7 +271,7 @@ ${phaseGuide[phase]}
 
     try {
 
-        const response = await fetch(`${ICA_ENDPOINT}/chat/completions`, {
+        const response = await fetch(`${OPENAI_ENDPOINT}/chat/completions`, {
             method: "POST",
             headers: {
                 "Content-Type":  "application/json",

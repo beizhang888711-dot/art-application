@@ -26,7 +26,7 @@ module.exports = async function handler(req, res) {
         return res.status(400).json({ error: "memories が配列ではありません" });
     }
 
-    const ICA_ENDPOINT = "https://api.openai.com/v1";
+    const OPENAI_ENDPOINT = "https://api.openai.com/v1";
 
     if (!process.env.OPENAI_API_KEY) {
         return res.status(500).json({ error: "環境変数 OPENAI_API_KEY が未設定です" });
@@ -90,7 +90,7 @@ ${styleInstruction}
 「${adjustInstruction}」を最優先で反映し、全体の感情表現とスタイルは維持すること。` : ""}`;
 
     try {
-        const url = `${ICA_ENDPOINT}/chat/completions`;
+        const url = `${OPENAI_ENDPOINT}/chat/completions`;
         console.log("[generate-params] POST", url);
 
         const response = await fetch(url, {

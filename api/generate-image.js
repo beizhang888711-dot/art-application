@@ -22,14 +22,14 @@ module.exports = async function handler(req, res) {
         return res.status(400).json({ error: "prompt が指定されていません" });
     }
 
-    const ICA_ENDPOINT = "https://api.openai.com/v1";
+    const OPENAI_ENDPOINT = "https://api.openai.com/v1";
 
     if (!process.env.OPENAI_API_KEY) {
         return res.status(500).json({ error: "環境変数 OPENAI_API_KEY が未設定です" });
     }
 
     try {
-        const url = `${ICA_ENDPOINT}/images/generations`;
+        const url = `${OPENAI_ENDPOINT}/images/generations`;
         console.log("[generate-image] POST", url);
 
         const response = await fetch(url, {
