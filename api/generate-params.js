@@ -26,10 +26,10 @@ module.exports = async function handler(req, res) {
         return res.status(400).json({ error: "memories が配列ではありません" });
     }
 
-    const ICA_ENDPOINT = process.env.ICA_ENDPOINT || "https://api.nextgen-beta.ica.ibm.com/ica/v1";
+    const ICA_ENDPOINT = "https://api.openai.com/v1";
 
-    if (!process.env.ICA_API_KEY) {
-        return res.status(500).json({ error: "環境変数 ICA_API_KEY が未設定です" });
+    if (!process.env.OPENAI_API_KEY) {
+        return res.status(500).json({ error: "環境変数 OPENAI_API_KEY が未設定です" });
     }
 
     // ── スタイル別の描画指針 ──
@@ -97,7 +97,7 @@ ${styleInstruction}
             method: "POST",
             headers: {
                 "Content-Type":  "application/json",
-                "Authorization": `Bearer ${process.env.ICA_API_KEY}`
+                "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
             },
             body: JSON.stringify({
                 model: "gpt-4o",

@@ -12,8 +12,8 @@ import fetch   from "node-fetch";
 const app = express();
 app.use(express.json());
 
-const ICA_API_KEY  = process.env.ICA_API_KEY;
-const ICA_ENDPOINT = process.env.ICA_ENDPOINT;
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+const ICA_ENDPOINT   = "https://api.openai.com/v1";
 
 // ブラウザからのリクエストを許可（CORS設定）
 app.use((req, res, next) => {
@@ -105,7 +105,7 @@ ${styleInstruction}
             method: "POST",
             headers: {
                 "Content-Type":  "application/json",
-                "Authorization": `Bearer ${ICA_API_KEY}`
+                "Authorization": `Bearer ${OPENAI_API_KEY}`
             },
             body: JSON.stringify({
                 model: "gpt-4o",
@@ -119,15 +119,23 @@ ${styleInstruction}
             })
         });
 
-        const data = await response.json();
-        console.log("APIレスポンス:", JSON.stringify(data).slice(0, 500));
+        const raw = await response.text();
+        console.log("APIレスポンス:", raw.slice(0, 500));
+
+        if (!response.ok) {
+            let msg;
+            try { msg = JSON.parse(raw).error?.message; } catch { msg = null; }
+            throw new Error(msg || `upstream error: ${response.status}`);
+        }
+
+        const data = JSON.parse(raw);
         const content = data.choices[0].message.content;
 
         const jsonMatch = content.match(/\{[\s\S]*\}/);
         if (!jsonMatch) throw new Error("JSON not found in response");
 
         const params = JSON.parse(jsonMatch[0]);
-        res.json(params); // ブラウザには新しい構造のJSONが返される
+        res.json(params);
 
     } catch (err) {
         console.error("プロキシエラー:", err);
@@ -153,7 +161,7 @@ app.post("/proxy/generate-image", async (req, res) => {
             method: "POST",
             headers: {
                 "Content-Type":  "application/json",
-                "Authorization": `Bearer ${ICA_API_KEY}`
+                "Authorization": `Bearer ${OPENAI_API_KEY}`
             },
             body: JSON.stringify({
                 model:   "dall-e-3",
@@ -265,7 +273,7 @@ ${phaseGuide[phase]}
             method: "POST",
             headers: {
                 "Content-Type":  "application/json",
-                "Authorization": `Bearer ${ICA_API_KEY}`
+                "Authorization": `Bearer ${OPENAI_API_KEY}`
             },
             body: JSON.stringify({ model: "gpt-4o", messages })
         });
