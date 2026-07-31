@@ -2,14 +2,12 @@ const PROXY_ENDPOINT = "/proxy";
 
 async function fetchGeneratedImage(prompt) {
 
-    const response = await fetch(`${PROXY_ENDPOINT}/generate-image`, {
+    const response = await fetch(`/api/generate-image`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({
-            prompt
-        })
+        body: JSON.stringify({ prompt })
     });
 
     if (!response.ok) {
@@ -18,7 +16,8 @@ async function fetchGeneratedImage(prompt) {
 
     const data = await response.json();
 
-    return data.image;
+    // b64_json 形式で返ってくる
+    return data.b64_json;
 }
 
 async function fetchAIParams(
@@ -48,13 +47,10 @@ async function fetchAIParams(
     return await response.json();
 }
 // ======================================
-// Canvas
+// 生成画像表示用 img 要素
 // ======================================
 
-const canvas = document.getElementById("artCanvas");
-const ctx    = canvas.getContext("2d");
-const W      = canvas.width;
-const H      = canvas.height;
+const artImg = document.getElementById("artImg");
 
 // ======================================
 // Workshopの回答取得
@@ -330,8 +326,8 @@ function stopLoadingMessages() {
     clearInterval(loadingMsgTimer);
 }
 
-canvas.style.opacity   = "0";
-canvas.style.transform = "scale(0.92)";
+artImg.style.opacity   = "0";
+artImg.style.transform = "scale(0.92)";
 
 (async () => {
 
@@ -339,46 +335,14 @@ canvas.style.transform = "scale(0.92)";
 
     try {
 
-    const ai = await fetchAIParams(
-        memories,
-        conversationHistory,
-        null,
-        artworkStructured
-    );
+        const ai = await fetchAIParams(
+            memories,
+            conversationHistory,
+            null,
+            artworkStructured
+        );
 
-        // ─── 背景色の決定 ───
-        let bgColor = "#0d0d1a";
-        if (ai.artisticVision?.colorPalette?.length > 0) {
-            bgColor = ai.artisticVision.colorPalette[0].color ?? bgColor;
-        } else if (ai.background) {
-            bgColor = ai.background;
-        }
-
-        const grad = ctx.createRadialGradient(W*0.5, H*0.4, 0, W*0.5, H*0.5, W*0.75);
-        grad.addColorStop(0, lighten(bgColor, 20));
-        grad.addColorStop(0.6, bgColor);
-        grad.addColorStop(1, darken(bgColor, 20));
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, W, H);
-
-        // ─── 要素の描画 ───
-        // 新形式: elements 配列をレンダリング
-        // 旧形式フォールバック: commands 配列
-        if (Array.isArray(ai.elements) && ai.elements.length > 0) {
-            // depth順（奥→手前）に並べ替え
-            const depthOrder = { "奥": 0, "中": 1, "手前": 2 };
-            const sorted = [...ai.elements].sort((a, b) => {
-                const da = depthOrder[a.visuals?.depth] ?? 1;
-                const db = depthOrder[b.visuals?.depth] ?? 1;
-                return da - db;
-            });
-            sorted.forEach(el => renderElement(el));
-        } else if (Array.isArray(ai.commands)) {
-            // 旧形式フォールバック
-            ai.commands.forEach(cmd => execCommand(cmd));
-        }
-
-        // タイトル・リフレクション
+        // ─── タイトル・リフレクション ───
         if (ai.title) {
             aiTitle = ai.title;
             const el = document.getElementById("artTitle");
@@ -390,29 +354,30 @@ canvas.style.transform = "scale(0.92)";
             if (el) el.textContent = ai.reflection;
         }
 
-        console.log("✅ AIパラメータ取得完了", ai);
+        // ─── DALL-E 3 で画像生成 ───
+        const imagePrompt = ai.imagePrompt || ai.title || "abstract emotional artwork";
+        const b64 = await fetchGeneratedImage(imagePrompt);
+        artImg.src = `data:image/png;base64,${b64}`;
+
+        console.log("✅ 画像生成完了");
 
     } catch (err) {
 
-        console.warn("AIパラメータ取得失敗。デフォルト描画します。", err);
-
-        // フォールバック：シンプルなグラデーション
-        const grad = ctx.createLinearGradient(0, 0, W, H);
-        grad.addColorStop(0, "#EEF5FF");
-        grad.addColorStop(1, "#ffffff");
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, W, H);
+        console.warn("画像生成失敗:", err);
+        // フォールバック：プレースホルダー表示
+        artImg.alt = "画像の生成に失敗しました。もう一度お試しください。";
+        artImg.style.background = "linear-gradient(135deg, #EEF5FF, #ffffff)";
 
     } finally {
 
         stopLoadingMessages();
         aiLoading.style.display = "none";
-        canvas.style.display    = "block";
+        artImg.style.display    = "block";
 
         setTimeout(() => {
-            canvas.style.transition = "1.8s";
-            canvas.style.opacity    = "1";
-            canvas.style.transform  = "scale(1)";
+            artImg.style.transition = "1.8s";
+            artImg.style.opacity    = "1";
+            artImg.style.transform  = "scale(1)";
         }, 100);
 
         // キーワードアニメーション
@@ -446,8 +411,8 @@ const adjustPreviewText = document.getElementById("adjustPreviewText");
 const compareArea       = document.getElementById("compareArea");
 const beforeImg         = document.getElementById("beforeImg");
 const beforeImgSide     = document.getElementById("beforeImgSide");
-const afterCanvas       = document.getElementById("afterCanvas");
-const afterCanvasSide   = document.getElementById("afterCanvasSide");
+const afterImg          = document.getElementById("afterImg");
+const afterImgSide      = document.getElementById("afterImgSide");
 const artSection        = document.getElementById("artSection");
 
 // ── 指示プレビューを更新 ──
@@ -487,7 +452,7 @@ function showToast(message, type = "success") {
 async function runAdjust(instruction) {
 
     // before画像を保存
-    const beforeDataUrl = canvas.toDataURL("image/png");
+    const beforeDataUrl = artImg.src;
 
     // パネルを閉じてリセット
     adjustPanel.style.display = "none";
@@ -496,15 +461,13 @@ async function runAdjust(instruction) {
     adjustPreview.style.display = "none";
     applyAdjustBtn.disabled = true;
 
-    // Canvas位置までスクロール → ローディング開始
-    canvas.scrollIntoView({ behavior: "smooth", block: "center" });
+    // img位置までスクロール → ローディング開始
+    artImg.scrollIntoView({ behavior: "smooth", block: "center" });
 
-    ctx.clearRect(0, 0, W, H);
     startLoadingMessages();
     aiLoading.style.display = "flex";
-    canvas.style.display    = "block";
-    canvas.style.opacity    = "0";
-    canvas.style.transform  = "scale(0.92)";
+    artImg.style.opacity    = "0";
+    artImg.style.transform  = "scale(0.92)";
 
     // 保存ボタンをリセット
     const saveBtn = document.getElementById("saveGalleryBtn");
@@ -515,31 +478,6 @@ async function runAdjust(instruction) {
 
     try {
         const ai = await fetchAIParams(memories, conversationHistory, instruction, artworkStructured);
-
-        // 背景
-        let bgColor = "#0d0d1a";
-        if (ai.artisticVision?.colorPalette?.length > 0) {
-            bgColor = ai.artisticVision.colorPalette[0].color ?? bgColor;
-        } else if (ai.background) {
-            bgColor = ai.background;
-        }
-        const grad = ctx.createRadialGradient(W*0.5, H*0.4, 0, W*0.5, H*0.5, W*0.75);
-        grad.addColorStop(0, lighten(bgColor, 20));
-        grad.addColorStop(0.6, bgColor);
-        grad.addColorStop(1, darken(bgColor, 20));
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, W, H);
-
-        // 要素描画
-        if (Array.isArray(ai.elements) && ai.elements.length > 0) {
-            const depthOrder = { "奥": 0, "中": 1, "手前": 2 };
-            const sorted = [...ai.elements].sort((a, b) =>
-                (depthOrder[a.visuals?.depth] ?? 1) - (depthOrder[b.visuals?.depth] ?? 1)
-            );
-            sorted.forEach(el => renderElement(el));
-        } else if (Array.isArray(ai.commands)) {
-            ai.commands.forEach(cmd => execCommand(cmd));
-        }
 
         // タイトル・リフレクション更新
         if (ai.title) {
@@ -553,16 +491,18 @@ async function runAdjust(instruction) {
             if (el) el.textContent = ai.reflection;
         }
 
+        // ── DALL-E 3 で再生成 ──
+        const imagePrompt = ai.imagePrompt || ai.title || "abstract emotional artwork";
+        const b64 = await fetchGeneratedImage(imagePrompt);
+        artImg.src = `data:image/png;base64,${b64}`;
+
         // ── before/after 比較表示 ──
         beforeImg.src     = beforeDataUrl;
         beforeImgSide.src = beforeDataUrl;
 
-        // after canvas（タブ用・並べて用）にコピー
-        [afterCanvas, afterCanvasSide].forEach(c => {
-            c.width  = canvas.width;
-            c.height = canvas.height;
-            c.getContext("2d").drawImage(canvas, 0, 0);
-        });
+        // after img（タブ用・並べて用）にコピー
+        afterImg.src     = artImg.src;
+        afterImgSide.src = artImg.src;
 
         // 比較エリアを「変更後」タブで表示
         compareArea.style.display = "block";
@@ -573,21 +513,15 @@ async function runAdjust(instruction) {
     } catch (err) {
         console.error("調整再生成失敗:", err);
         showToast("⚠️ 更新に失敗しました。もう一度お試しください。", "error");
-        const grad = ctx.createLinearGradient(0, 0, W, H);
-        grad.addColorStop(0, "#1a1a2e");
-        grad.addColorStop(1, "#16213e");
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, W, H);
     } finally {
         stopLoadingMessages();
         aiLoading.style.display = "none";
         setTimeout(() => {
-            canvas.style.transition = "1.2s";
-            canvas.style.opacity    = "1";
-            canvas.style.transform  = "scale(1)";
-            // 完了フラッシュ＆artSectionへスクロール
-            canvas.classList.add("canvas--updated");
-            setTimeout(() => canvas.classList.remove("canvas--updated"), 900);
+            artImg.style.transition = "1.2s";
+            artImg.style.opacity    = "1";
+            artImg.style.transform  = "scale(1)";
+            artImg.classList.add("canvas--updated");
+            setTimeout(() => artImg.classList.remove("canvas--updated"), 900);
             setTimeout(() => artSection.scrollIntoView({ behavior: "smooth", block: "start" }), 150);
         }, 80);
     }
@@ -684,7 +618,7 @@ const workshopSession = getOrCreateSessionId();
 // ── 実際にgalleryに保存する関数 ──
 function doSave(intent) {
     const gallery = JSON.parse(localStorage.getItem("gallery")) || [];
-    const image   = canvas.toDataURL("image/png");
+    const image   = artImg.src;
 
     if (gallery.some(w => w.image === image)) {
         alert("この作品はすでに保存されています。");

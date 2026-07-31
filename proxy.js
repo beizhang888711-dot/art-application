@@ -86,30 +86,15 @@ ${styleInstruction}
 {
   "title": "作品タイトル（日本語・詩的に）",
   "reflection": "この作品が表現した感情・記憶・スタイルの選択理由を詩的に解説（2〜3文）",
+  "imagePrompt": "DALL-E 3に渡す英語プロンプト。ユーザーの感情・記憶・色彩イメージ・選択スタイルを反映した抽象絵画の描写。スタイル・色・構図・雰囲気を具体的に記述。200語以内。",
   "artisticVision": {
     "baseMood": "作品全体の基調となる感情（例: 静かなる諦念、爆発する歓喜）",
     "dominantTechnique": "主要な表現手法（スタイルを反映した具体的な記述）",
     "colorPalette": [
       { "color": "#rrggbb", "meaning": "この色が象徴する感情/要素" }
     ]
-  },
-  "elements": [
-    {
-      "type": "texture_layer | organic_form | geometric_trace | energy_flow | point_of_focus",
-      "description": "この要素が表現するもの",
-      "visuals": {
-        "depth": "奥 / 中 / 手前",
-        "primaryColor": "#rrggbb",
-        "secondaryColor": "#rrggbb",
-        "alpha": 0.1〜1.0,
-        "brushQuality": "滑らか / 荒い / 点描 / 滲み",
-        "movement": "静止 / 緩やかな渦 / 鋭い直線 / 拡散",
-        "area": { "x": 0〜1, "y": 0〜1, "scale": 0.1〜1.0 }
-      }
-    }
-  ]
-}
-座標はすべて0〜1の比率。elements は5〜8個。奥から手前の順で並べる。${adjustInstruction ? `
+  }
+}${adjustInstruction ? `
 
 【利用者からの調整指示】
 「${adjustInstruction}」を最優先で反映し、全体の感情表現とスタイルは維持すること。` : ""}`;

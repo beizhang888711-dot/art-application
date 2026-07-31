@@ -39,30 +39,15 @@ module.exports = async function handler(req, res) {
 {
   "title": "作品タイトル（日本語・詩的に）",
   "reflection": "この作品が、ユーザーのどのような感情や記憶を、どのようなアート手法で表現したかの詩的な解説（3 sentence程度）",
+  "imagePrompt": "DALL-E 3に渡す英語プロンプト。ユーザーの感情・記憶・色彩イメージを反映した抽象絵画の描写。スタイル・色・構図・雰囲気を具体的に記述。200語以内。",
   "artisticVision": {
     "baseMood": "作品全体の基調となる感情（例: 静かなる諦念、爆発する歓喜、微かな希望）",
     "dominantTechnique": "主要な表現手法（例: 湿った筆による滲み、ナイフによる厚塗り、繊細な線画の積層）",
     "colorPalette": [
       { "color": "#rrggbb", "meaning": "この色が象徴する感情/要素" }
     ]
-  },
-  "elements": [
-    {
-      "type": "texture_layer | organic_form | geometric_trace | energy_flow | point_of_focus",
-      "description": "この要素が表現するもの",
-      "visuals": {
-        "depth": "奥 / 中 / 手前",
-        "primaryColor": "#rrggbb",
-        "secondaryColor": "#rrggbb",
-        "alpha": 0.5,
-        "brushQuality": "滑らか / 荒い / 点描 / 滲み",
-        "movement": "静止 / 緩やかな渦 / 鋭い直線 / 拡散",
-        "area": { "x": 0.5, "y": 0.5, "scale": 0.5 }
-      }
-    }
-  ]
-}
-座標はすべて0〜1の比率で指定。`;
+  }
+}`;
 
     if (!process.env.ICA_ENDPOINT || !process.env.ICA_API_KEY) {
         return res.status(500).json({ error: "環境変数 ICA_ENDPOINT / ICA_API_KEY が未設定です" });

@@ -51,13 +51,11 @@
                 <p id="aiLoadingMsg">あなたの言葉を色に変換しています</p>
             </div>
 
-            <!-- フォールバック用Canvas -->
-            <canvas
-                id="artCanvas"
-                width="700"
-                height="700"
-                style="display:none;">
-            </canvas>
+            <!-- モデル生成画像 -->
+            <img
+                id="artImg"
+                alt="AI Generated Artwork"
+                style="display:none; width:100%; max-width:700px; opacity:0; transform:scale(0.92); border-radius:8px;">
 
         </div>
 
@@ -126,7 +124,7 @@
 
             <!-- 変更後 -->
             <div class="comparePane" id="pane-after">
-                <canvas id="afterCanvas" class="compareArea__img compareArea__img--single"></canvas>
+                <img id="afterImg" class="compareArea__img compareArea__img--single" alt="変更後">
             </div>
             <!-- 変更前 -->
             <div class="comparePane" id="pane-before" style="display:none;">
@@ -141,7 +139,7 @@
                 <div class="compareArea__divider">→</div>
                 <div class="compareArea__item">
                     <p class="compareArea__label">変更後</p>
-                    <canvas id="afterCanvasSide" class="compareArea__img"></canvas>
+                    <img id="afterImgSide" class="compareArea__img" alt="変更後">
                 </div>
             </div>
         </section>
