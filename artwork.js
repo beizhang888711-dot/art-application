@@ -714,6 +714,7 @@ if (goShareBtn) {
 }
 
 // ── 同意モーダルを介してアンケートへ進む ──
+/* TODO: アンケート機能 一時無効化
 function openConsentThenSurvey() {
     consentModal.style.display = "flex";
 
@@ -784,6 +785,8 @@ function openSurvey() {
         surveyModal.style.display = "none";
     };
 }
+*/
+function openConsentThenSurvey() { /* 一時無効化 */ }
 
 // ── 制作意図モーダルを閉じる（保存せず戻る）──
 function closeIntentModal() {
@@ -836,14 +839,14 @@ document.getElementById("intentSaveBtn").onclick = () => {
     };
     intentModal.style.display = "none";
     doSave(intent);
-    openConsentThenSurvey();
+    // openConsentThenSurvey(); // TODO: アンケート機能 一時無効化
 };
 
 // ── 制作意図モーダル：「スキップして保存」──
 document.getElementById("intentSkipBtn").onclick = () => {
     intentModal.style.display = "none";
     doSave({ title: aiTitle });
-    openConsentThenSurvey();
+    // openConsentThenSurvey(); // TODO: アンケート機能 一時無効化
 };
 
 // ======================================
