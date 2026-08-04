@@ -619,10 +619,25 @@ function makeArtworkId() {
 let currentArtworkId  = null; // doSave で確定
 const workshopSession = getOrCreateSessionId();
 
+// ── ギャラリーの壊れたデータ（画像URLが base64/blob でないもの）を除去 ──
+(function cleanupGallery() {
+    const gallery = JSON.parse(localStorage.getItem("gallery")) || [];
+    const cleaned = gallery.filter(w => w.image && (w.image.startsWith("data:") || w.image.startsWith("blob:")));
+    if (cleaned.length !== gallery.length) {
+        localStorage.setItem("gallery", JSON.stringify(cleaned));
+    }
+})();
+
 // ── 実際にgalleryに保存する関数 ──
 function doSave(intent) {
     const gallery = JSON.parse(localStorage.getItem("gallery")) || [];
     const image   = artImg.src;
+
+    // base64 または blob URL でない場合は画像未生成
+    if (!image || (!image.startsWith("data:") && !image.startsWith("blob:"))) {
+        alert("作品の画像がまだ生成されていません。少し待ってから再度お試しください。");
+        return;
+    }
 
     if (gallery.some(w => w.image === image)) {
         alert("この作品はすでに保存されています。");
