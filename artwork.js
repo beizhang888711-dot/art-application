@@ -666,6 +666,29 @@ if (makeAnotherBtn) {
     };
 }
 
+// ── 「SNSへ投稿」── Web Share API → フォールバック: X(Twitter)
+const snsShareBtn = document.getElementById("snsShareBtn");
+if (snsShareBtn) {
+    snsShareBtn.onclick = async () => {
+        const title = document.getElementById("artTitle")?.textContent?.trim() || "Generated Artwork";
+        const shareText = `「${title}」AIとの対話から生まれた世界に一つの抽象作品です。 #AIアート #GeneratedArtwork`;
+        const shareUrl = location.href;
+
+        if (navigator.share) {
+            try {
+                await navigator.share({ title, text: shareText, url: shareUrl });
+            } catch (e) {
+                // ユーザーがキャンセルした場合は何もしない
+            }
+        } else {
+            const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
+            window.open(twitterUrl, "_blank", "noopener,noreferrer");
+        }
+    };
+}
+
+
+
 // ── 「発表する作品を選ぶ」── ギャラリーを発表モードで開く
 const goShareBtn = document.getElementById("goShareBtn");
 if (goShareBtn) {
