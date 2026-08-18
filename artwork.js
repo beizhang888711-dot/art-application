@@ -867,7 +867,7 @@ document.getElementById("exportPdfBtn").addEventListener("click", () => {
     header.className = "pdf-report-header";
     header.innerHTML = `
         <strong style="font-size:18px;">${document.getElementById("artTitle").textContent}</strong><br>
-        Art Reflection — AIとの共創作品レポート<br>
+        Bloom — AIとの共創作品レポート<br>
         生成日：${now}
     `;
     document.querySelector(".container").insertBefore(header, document.querySelector(".container").firstChild);
